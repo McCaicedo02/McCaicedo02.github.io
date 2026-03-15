@@ -8,72 +8,77 @@ const lastScoreEl = document.getElementById('lastScore');
 const q10Value = document.getElementById('q10Value');
 const sparkleLayer = document.getElementById('sparkleLayer');
 
-const TIMES_KEY = 'historyQuizTimes';
-const LAST_SCORE_KEY = 'historyQuizLastScore';
+const TIMES_KEY = 'usGeoQuizTimes';
+const LAST_SCORE_KEY = 'usGeoQuizLastScore';
 
 const questionConfig = [
   {
     id: 'q1',
     type: 'radio',
-    correct: '1776',
-    answerText: '1776',
+    correct: 'sacramento',
+    answerText: 'Sacramento',
   },
   {
     id: 'q2',
     type: 'radio',
-    correct: 'george-washington',
-    answerText: 'George Washington',
+    correct: 'florida',
+    answerText: 'Florida',
   },
   {
     id: 'q3',
     type: 'radio',
-    correct: '1861-1865',
-    answerText: '1861–1865',
+    correct: 'alaska',
+    answerText: 'Alaska',
   },
   {
     id: 'q4',
     type: 'radio',
-    correct: 'civil-rights',
-    answerText: 'Civil Rights Movement',
+    correct: 'gulf-of-mexico',
+    answerText: 'Gulf of Mexico',
   },
   {
     id: 'q5',
     type: 'radio',
-    correct: 'france',
-    answerText: 'France',
+    correct: 'arizona',
+    answerText: 'Arizona',
   },
   {
     id: 'q6',
     type: 'checkbox',
-    correct: ['united-states', 'united-kingdom', 'soviet-union', 'france'],
-    answerText: 'United States, United Kingdom, Soviet Union, France',
+    correct: ['california', 'oregon', 'washington'],
+    answerText: 'California, Oregon, Washington',
   },
   {
     id: 'q7',
     type: 'select',
-    correct: 'constitution',
-    answerText: 'US Constitution',
+    correct: 'eastern',
+    answerText: 'Eastern',
   },
   {
     id: 'q8',
     type: 'text',
     correct: (value) => {
       const normalized = normalizeText(value);
-      return normalized === 'thomas paine' || normalized === 'paine';
+      return (
+        normalized === 'denali' ||
+        normalized === 'mount mckinley' ||
+        normalized === 'mt mckinley' ||
+        normalized === 'mt. mckinley'
+      );
     },
-    answerText: 'Thomas Paine',
+    answerText: 'Denali (Mount McKinley)',
   },
   {
     id: 'q9',
     type: 'number',
-    correct: 10,
-    answerText: '10',
+    correct: 4,
+    answerText: '4',
   },
   {
     id: 'q10',
     type: 'range',
-    correct: 13,
-    answerText: '13',
+    correct: 5,
+    answerText: '5',
   },
 ];
 
@@ -249,7 +254,7 @@ function handleReset() {
   scoreBar.style.width = '0%';
   scoreBar.textContent = '0%';
   congratsMessage.classList.add('d-none');
-  q10Value.textContent = '13';
+  q10Value.textContent = '5';
 }
 
 quizForm.addEventListener('submit', handleSubmit);
