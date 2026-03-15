@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HW 2: History Quiz | CSUMB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="sparkleLayer" aria-hidden="true"></div>
+    <main class="container py-5">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <section class="hero-card p-4">
+            <p class="hero__eyebrow">HW 2 · JavaScript</p>
+            <h1>History Quiz</h1>
+            <p class="hero__subtitle">
+              Ten questions, 10 points each. Score 100 points and earn historical bragging rights.
+              The last five questions use different input types, so read carefully.
+            </p>
+            <div class="hero__chips">
+              <span>10 Questions</span>
+              <span>100 Points</span>
+              <span>Instant Feedback</span>
+            </div>
+            <div class="hero__stats mt-4">
+              <p class="mb-1"><span>Total times taken</span> <strong id="timesTaken">0</strong></p>
+              <p class="mb-0"><span>Last score</span> <strong id="lastScore">--</strong></p>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="col-lg-8">
+          <form id="quizForm" class="quiz-card p-4">
+            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+              <div>
+                <p class="quiz__eyebrow">Ready?</p>
+                <h2 class="mb-0">Test your US history knowledge</h2>
+              </div>
+              <span class="badge rounded-pill text-bg-light">Score: <strong id="scoreBadge">0</strong></span>
+            </div>
+
+            <div class="question-list">
+              <div class="question-card" data-question="q1">
+                <h3>1. In what year was the Declaration of Independence signed?</h3>
+                <div class="choice-grid">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1a" value="1776" />
+                    <label class="form-check-label" for="q1a">1776</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1b" value="1783" />
+                    <label class="form-check-label" for="q1b">1783</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1c" value="1791" />
+                    <label class="form-check-label" for="q1c">1791</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q1" id="q1d" value="1812" />
+                    <label class="form-check-label" for="q1d">1812</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q1">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q2">
+                <h3>2. Who was the first President of the United States?</h3>
+                <div class="choice-grid" data-shuffle="true">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2a" value="john-adams" />
+                    <label class="form-check-label" for="q2a">John Adams</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2b" value="george-washington" />
+                    <label class="form-check-label" for="q2b">George Washington</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2c" value="thomas-jefferson" />
+                    <label class="form-check-label" for="q2c">Thomas Jefferson</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q2" id="q2d" value="james-madison" />
+                    <label class="form-check-label" for="q2d">James Madison</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q2">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q3">
+                <h3>3. The Civil War was fought from:</h3>
+                <div class="choice-grid">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3a" value="1861-1865" />
+                    <label class="form-check-label" for="q3a">1861–1865</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3b" value="1848-1852" />
+                    <label class="form-check-label" for="q3b">1848–1852</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3c" value="1870-1875" />
+                    <label class="form-check-label" for="q3c">1870–1875</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q3" id="q3d" value="1914-1918" />
+                    <label class="form-check-label" for="q3d">1914–1918</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q3">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q4">
+                <h3>4. Martin Luther King Jr. was a leader of which movement?</h3>
+                <div class="choice-grid">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4a" value="civil-rights" />
+                    <label class="form-check-label" for="q4a">Civil Rights Movement</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4b" value="temperance" />
+                    <label class="form-check-label" for="q4b">Temperance Movement</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4c" value="suffrage" />
+                    <label class="form-check-label" for="q4c">Women’s Suffrage Movement</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q4" id="q4d" value="progressive" />
+                    <label class="form-check-label" for="q4d">Progressive Movement</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q4">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q5">
+                <h3>5. The Louisiana Purchase was made from which country?</h3>
+                <div class="choice-grid">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5a" value="spain" />
+                    <label class="form-check-label" for="q5a">Spain</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5b" value="france" />
+                    <label class="form-check-label" for="q5b">France</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5c" value="britain" />
+                    <label class="form-check-label" for="q5c">Great Britain</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q5" id="q5d" value="mexico" />
+                    <label class="form-check-label" for="q5d">Mexico</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q5">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q6">
+                <h3>6. Select all Allied Powers during World War II.</h3>
+                <p class="question-note">Choose every correct answer.</p>
+                <div class="choice-grid">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6a" value="united-states" />
+                    <label class="form-check-label" for="q6a">United States</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6b" value="united-kingdom" />
+                    <label class="form-check-label" for="q6b">United Kingdom</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6c" value="soviet-union" />
+                    <label class="form-check-label" for="q6c">Soviet Union</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6d" value="france" />
+                    <label class="form-check-label" for="q6d">France</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6e" value="germany" />
+                    <label class="form-check-label" for="q6e">Germany</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="q6" id="q6f" value="japan" />
+                    <label class="form-check-label" for="q6f">Japan</label>
+                  </div>
+                </div>
+                <div class="feedback d-none" id="feedback-q6">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q7">
+                <h3>7. Which document begins with “We the People”?</h3>
+                <select class="form-select" id="q7" name="q7" aria-label="Select a document">
+                  <option value="">Select one...</option>
+                  <option value="declaration">Declaration of Independence</option>
+                  <option value="constitution">US Constitution</option>
+                  <option value="articles">Articles of Confederation</option>
+                  <option value="emancipation">Emancipation Proclamation</option>
+                </select>
+                <div class="feedback d-none" id="feedback-q7">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q8">
+                <h3>8. Who wrote the pamphlet “Common Sense”?</h3>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="q8"
+                  name="q8"
+                  placeholder="Type your answer"
+                />
+                <div class="feedback d-none" id="feedback-q8">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q9">
+                <h3>9. How many amendments are in the Bill of Rights?</h3>
+                <input class="form-control" type="number" id="q9" name="q9" min="0" max="20" />
+                <div class="feedback d-none" id="feedback-q9">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+
+              <div class="question-card" data-question="q10">
+                <h3>10. Move the slider to the number of original colonies.</h3>
+                <div class="range-wrap">
+                  <input class="form-range" type="range" id="q10" name="q10" min="1" max="20" value="13" />
+                  <span class="range-value">Value: <strong id="q10Value">13</strong></span>
+                </div>
+                <div class="feedback d-none" id="feedback-q10">
+                  <img alt="" />
+                  <span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+              <button class="btn btn-primary" type="submit">Submit Quiz</button>
+              <button class="btn btn-outline-secondary" type="reset" id="resetBtn">Reset</button>
+            </div>
+          </form>
+
+          <section class="results-card p-4 mt-4" aria-live="polite">
+            <h3>Results</h3>
+            <p id="scoreText" class="mb-2">Submit the quiz to see your score.</p>
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar" id="scoreBar" style="width: 0%">0%</div>
+            </div>
+            <p id="congratsMessage" class="congrats-message d-none">
+              Great job! You scored above 80—your history skills are sparkling.
+            </p>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__content">
+        <div class="site-footer__text">
+          <p class="site-footer__title">CST336 Internet Programming</p>
+          <p class="site-footer__meta">© 2026 Camila Caicedo</p>
+          <p class="site-footer__note">This page is for educational purposes.</p>
+        </div>
+        <img
+          class="site-footer__logo"
+          src="img/csumb-logo.png"
+          alt="California State University Monterey Bay logo"
+        />
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="app.js"></script>
+  </body>
+</html>
