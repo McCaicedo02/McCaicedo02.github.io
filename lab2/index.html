@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Guess Challenge | CSUMB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero-card">
+        <p class="hero__eyebrow">Lab 2 · JavaScript</p>
+        <h1>Math Guess Challenge</h1>
+        <p class="hero__subtitle">
+          Guess the hidden number between <strong>1</strong> and <strong>99</strong> in up to
+          <strong>7 attempts</strong>. Track your history and sharpen your instincts.
+        </p>
+        <div class="hero__chips">
+          <span>Guess smart</span>
+          <span>Stay curious</span>
+          <span>Have fun</span>
+        </div>
+      </section>
+
+      <section class="play-panel" aria-live="polite">
+        <div class="play-panel__head">
+          <div>
+            <p class="play-panel__eyebrow">Ready?</p>
+            <h2>Make your move</h2>
+          </div>
+          <div class="play-panel__badge">Attempts: <strong id="attemptCount">0 / 7</strong></div>
+        </div>
+
+        <div class="input-group">
+          <label for="guessInput">Enter your guess</label>
+          <div class="controls">
+            <input id="guessInput" type="number" min="1" max="99" placeholder="e.g. 42" />
+            <button id="guessBtn" type="button">Guess</button>
+            <button id="resetBtn" type="button" class="hidden">Reset Game</button>
+          </div>
+        </div>
+
+        <p id="statusMessage" class="status-message">
+          New game started. Enter a number from 1 to 99.
+        </p>
+
+        <div class="stats">
+          <p><span>Games won</span> <strong id="winsCount">0</strong></p>
+          <p><span>Games lost</span> <strong id="lossesCount">0</strong></p>
+        </div>
+
+        <section class="history">
+          <div class="history__head">
+            <h3>Attempt History</h3>
+            <span class="history__hint">Watch the pattern</span>
+          </div>
+          <ol id="attemptList" class="attempt-list"></ol>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__content">
+        <div class="site-footer__text">
+          <p class="site-footer__title">CST336 Internet Programming</p>
+          <p class="site-footer__meta">© 2026 Camila Caicedo</p>
+          <p class="site-footer__note">This page is for educational purposes.</p>
+        </div>
+        <img
+          class="site-footer__logo"
+          src="img/csumb-logo.png"
+          alt="California State University Monterey Bay logo"
+        />
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
