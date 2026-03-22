@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elevate Sign Up | CST336 Lab 3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="scene__scanlines"></div>
+      <div class="scene__grid"></div>
+      <div class="scene__sun"></div>
+      <div class="scene__wave scene__wave--one"></div>
+      <div class="scene__wave scene__wave--two"></div>
+      <div class="scene__wave scene__wave--three"></div>
+      <div class="scene__orb scene__orb--one"></div>
+      <div class="scene__orb scene__orb--two"></div>
+    </div>
+
+    <header class="site-header">
+      <div class="site-header__inner">
+        <div class="brand-lockup">
+          <p class="brand-lockup__kicker">California State University Monterey Bay</p>
+          <p class="brand-lockup__title">OTTER.OS Account Services</p>
+        </div>
+        <div class="site-header__meta">
+          <span>CST336 Lab 3</span>
+          <span>Retro Sign Up Portal</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-band">
+        <div class="hero-band__inner">
+          <div class="hero-copyblock">
+            <p class="eyebrow">Monterey Bay network online. Otter mode enabled.</p>
+            <h1>Press start to build your CSUMB profile.</h1>
+            <p class="hero-copy">
+              Designed like a retro-futurist login screen with campus colors, kinetic background
+              motion, and live validation that feels more like a real portal than a class demo.
+            </p>
+
+            <div class="hero-banner">
+              <span>OTTER ID SYSTEM</span>
+              <span>LIVE COASTAL LINK</span>
+              <span>PLAYER ONE: STUDENT</span>
+            </div>
+
+            <div class="hero-metrics">
+              <article>
+                <span>Location</span>
+                <strong>ZIP to city + coordinates</strong>
+              </article>
+              <article>
+                <span>State Directory</span>
+                <strong>All 50 states loaded on arrival</strong>
+              </article>
+              <article>
+                <span>Validation</span>
+                <strong>Live checks before submit</strong>
+              </article>
+            </div>
+          </div>
+
+          <aside class="hero-aside">
+            <p class="hero-aside__label">System status</p>
+            <p class="status-pill" id="pageStatus">Ready to validate</p>
+            <div class="status-stack">
+              <p><span>Signal</span><strong>Monterey Bay Stable</strong></p>
+              <p><span>Theme</span><strong>Otterwave Arcade</strong></p>
+            </div>
+            <div class="coastline">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="hero-aside__note">
+              Retro HUD framing, animated horizon lines, and arcade-inspired labels push it away
+              from the standard class-assignment look.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="form-band">
+        <div class="form-band__inner">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow eyebrow--accent">Professional Signup</p>
+              <h2>New player registration</h2>
+            </div>
+            <p class="section-heading__copy">
+              Complete the fields below to unlock your otter account profile.
+            </p>
+          </div>
+
+          <form id="signupForm" class="signup-form" onsubmit="handleSubmit(event)" novalidate>
+            <div class="form-grid">
+            <label class="field">
+              <span>First name</span>
+              <input id="firstName" name="firstName" type="text" placeholder="Camila" required />
+            </label>
+
+            <label class="field">
+              <span>Last name</span>
+              <input id="lastName" name="lastName" type="text" placeholder="Caicedo" required />
+            </label>
+
+            <label class="field field--wide">
+              <span>Username</span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Choose a username"
+                oninput="resetUsernameState()"
+                onblur="checkUsernameAvailability()"
+                required
+              />
+              <small id="usernameMessage" class="message">Availability will appear here.</small>
+            </label>
+
+            <label class="field">
+              <span>ZIP code</span>
+              <input
+                id="zip"
+                name="zip"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="93955"
+                oninput="handleZipInput()"
+                required
+              />
+              <small id="zipMessage" class="message">Enter a 5-digit ZIP code.</small>
+            </label>
+
+            <label class="field">
+              <span>State</span>
+              <select id="state" name="state" onchange="handleStateChange()" required>
+                <option value="">Loading states...</option>
+              </select>
+              <small id="stateMessage" class="message">Select a state to load counties.</small>
+            </label>
+
+            <label class="field">
+              <span>County</span>
+              <select id="county" name="county" required>
+                <option value="">Select a state first</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>City</span>
+              <input id="city" name="city" type="text" placeholder="Auto-filled from ZIP" readonly />
+            </label>
+
+            <label class="field">
+              <span>Longitude</span>
+              <input
+                id="longitude"
+                name="longitude"
+                type="text"
+                placeholder="Auto-filled from ZIP"
+                readonly
+              />
+            </label>
+
+            <label class="field">
+              <span>Latitude</span>
+              <input
+                id="latitude"
+                name="latitude"
+                type="text"
+                placeholder="Auto-filled from ZIP"
+                readonly
+              />
+            </label>
+
+            <label class="field">
+              <span>Password</span>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Click for a suggested password"
+                onclick="showPasswordSuggestion()"
+                onfocus="showPasswordSuggestion()"
+                required
+              />
+              <small id="passwordMessage" class="message">Password must be at least 6 characters.</small>
+            </label>
+
+            <div class="field field--wide field--suggestion">
+              <span>Suggested password</span>
+              <div class="suggestion-box">
+                <code id="passwordSuggestion">Click inside the password field</code>
+                <button type="button" class="ghost-button" onclick="applySuggestedPassword()">
+                  Use suggestion
+                </button>
+              </div>
+            </div>
+
+            <label class="field field--wide">
+              <span>Retype password</span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Retype your password"
+                required
+              />
+              <small id="confirmMessage" class="message">Retype the same password.</small>
+            </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="primary-button">Submit</button>
+              <button type="reset" class="ghost-button" onclick="resetFormState()">Reset</button>
+            </div>
+
+            <p id="submitMessage" class="submit-message" aria-live="polite">
+              Complete the form to create your profile.
+            </p>
+          </form>
+
+          <section id="welcomePanel" class="welcome-panel hidden" aria-live="polite">
+            <p class="eyebrow eyebrow--accent">Welcome</p>
+            <h3 id="welcomeTitle">Account created</h3>
+            <p id="welcomeSummary"></p>
+            <button type="button" class="primary-button" onclick="startAnotherSignup()">
+              Create another profile
+            </button>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
