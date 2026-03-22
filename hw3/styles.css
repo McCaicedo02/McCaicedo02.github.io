@@ -653,6 +653,39 @@ body::before {
   line-height: 1.75;
 }
 
+.site-footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(255, 179, 71, 0.14);
+  background: rgba(14, 8, 6, 0.8);
+}
+
+.site-footer__inner {
+  width: min(1120px, 92vw);
+  margin: 0 auto;
+  padding: 1.4rem 0 2.6rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.site-footer__logo {
+  width: 86px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+}
+
+.site-footer__copy p {
+  margin: 0;
+  color: var(--smoke);
+  line-height: 1.6;
+}
+
+.site-footer__copy p + p {
+  margin-top: 0.35rem;
+}
+
 @keyframes seismic-bars {
   0%,
   100% {
@@ -777,5 +810,10 @@ body::before {
   .scene__ring,
   .scene__pulse--two {
     display: none;
+  }
+
+  .site-footer__inner {
+    flex-direction: column;
+    align-items: start;
   }
 }

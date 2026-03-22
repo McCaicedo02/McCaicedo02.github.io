@@ -20,11 +20,17 @@ function formatDateForInput(date) {
   return date.toISOString().split('T')[0];
 }
 
+function getTodayString() {
+  return formatDateForInput(new Date());
+}
+
 function setDefaultDates() {
   const today = new Date();
   const lastWeek = new Date();
   lastWeek.setDate(today.getDate() - 7);
 
+  endDateInput.max = formatDateForInput(today);
+  startDateInput.max = formatDateForInput(today);
   endDateInput.value = formatDateForInput(today);
   startDateInput.value = formatDateForInput(lastWeek);
 }
@@ -37,6 +43,7 @@ function setFieldMessage(input, messageElement, message, type = '') {
 
 function validateDateInputs() {
   let isValid = true;
+  const todayString = getTodayString();
 
   if (!startDateInput.value) {
     setFieldMessage(startDateInput, startDateMessage, 'Start date is required.', 'error');
@@ -50,6 +57,16 @@ function validateDateInputs() {
     isValid = false;
   } else {
     setFieldMessage(endDateInput, endDateMessage, 'End date looks good.', 'success');
+  }
+
+  if (endDateInput.value && endDateInput.value > todayString) {
+    setFieldMessage(endDateInput, endDateMessage, 'End date cannot be after today.', 'error');
+    isValid = false;
+  }
+
+  if (startDateInput.value && startDateInput.value > todayString) {
+    setFieldMessage(startDateInput, startDateMessage, 'Start date cannot be after today.', 'error');
+    isValid = false;
   }
 
   if (startDateInput.value && endDateInput.value && startDateInput.value > endDateInput.value) {
@@ -230,6 +247,8 @@ function applyQuickRange(days) {
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - days);
 
+  endDateInput.max = getTodayString();
+  startDateInput.max = getTodayString();
   startDateInput.value = formatDateForInput(startDate);
   endDateInput.value = formatDateForInput(endDate);
   validateDateInputs();
