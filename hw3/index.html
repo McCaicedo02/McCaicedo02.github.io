@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seismic Scope | HW 3 Fetch and Web APIs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Manrope:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="scene__scanlines"></div>
+      <div class="scene__grid"></div>
+      <div class="scene__fault scene__fault--one"></div>
+      <div class="scene__fault scene__fault--two"></div>
+      <div class="scene__pulse scene__pulse--one"></div>
+      <div class="scene__pulse scene__pulse--two"></div>
+      <div class="scene__ring"></div>
+    </div>
+
+    <header class="site-header">
+      <div class="site-header__topline">
+        <p class="site-header__eyebrow">CST 336 · HW 3 · Fetch + Web APIs</p>
+        <p class="site-header__stamp">USGS live feed connected</p>
+      </div>
+
+      <section class="hero-band">
+        <div class="hero-copy">
+          <p class="kicker">Retro seismic observatory</p>
+          <h1>Seismic Scope</h1>
+          <p class="site-header__copy">
+            Track earthquake activity by date and magnitude through a live USGS data feed, styled
+            like an old control room display.
+          </p>
+
+          <div class="ticker" aria-label="Feature highlights">
+            <span>LIVE TREMOR FEED</span>
+            <span>DATE RANGE FILTERS</span>
+            <span>MAGNITUDE VALIDATION</span>
+            <span>ANIMATED READOUT</span>
+            <span>USGS GEOJSON DATA</span>
+          </div>
+        </div>
+
+        <aside class="hero-monitor">
+          <p class="hero-monitor__label">Signal monitor</p>
+          <div class="hero-monitor__screen">
+            <div class="waveform">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="monitor-grid"></div>
+            <p class="hero-monitor__readout">TECTONIC ACTIVITY // SIGNAL STABLE</p>
+          </div>
+        </aside>
+      </section>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--form">
+        <div class="panel__heading">
+          <p class="kicker">Query builder</p>
+          <h2>Search earthquake activity</h2>
+        </div>
+
+        <form id="quakeForm" class="quake-form" novalidate>
+          <label class="field">
+            <span>Start date</span>
+            <input id="startDate" name="startDate" type="date" required />
+            <small id="startDateMessage" class="field-message">Choose a start date.</small>
+          </label>
+
+          <label class="field">
+            <span>End date</span>
+            <input id="endDate" name="endDate" type="date" required />
+            <small id="endDateMessage" class="field-message">Choose an end date.</small>
+          </label>
+
+          <label class="field field--wide">
+            <span>Minimum magnitude</span>
+            <input
+              id="minMagnitude"
+              name="minMagnitude"
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              value="4.5"
+              required
+            />
+            <small id="magnitudeMessage" class="field-message">
+              Enter a value from 0.0 to 10.0.
+            </small>
+          </label>
+
+          <div class="quick-picks" aria-label="Quick date ranges">
+            <button type="button" class="quick-picks__button" data-days="1">Past 24 hours</button>
+            <button type="button" class="quick-picks__button" data-days="7">Past 7 days</button>
+            <button type="button" class="quick-picks__button" data-days="30">Past 30 days</button>
+          </div>
+
+          <div class="form-actions">
+            <button id="searchButton" class="primary-button" type="submit">Run search</button>
+            <p id="formStatus" class="form-status">Set your filters and load earthquake data.</p>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel panel--summary">
+        <div class="panel__heading">
+          <p class="kicker">Live snapshot</p>
+          <h2>Control room readout</h2>
+        </div>
+
+        <div class="readout-stack">
+          <article class="readout-line">
+            <span>Matches found</span>
+            <strong id="matchCount">0</strong>
+          </article>
+          <article class="readout-line">
+            <span>Strongest quake</span>
+            <strong id="topMagnitude">--</strong>
+          </article>
+          <article class="readout-line">
+            <span>Average magnitude</span>
+            <strong id="averageMagnitude">--</strong>
+          </article>
+          <article class="readout-line">
+            <span>Latest event</span>
+            <strong id="latestEvent">Waiting</strong>
+          </article>
+        </div>
+
+        <div class="insight-card">
+          <p class="insight-card__label">Station note</p>
+          <p id="insightMessage" class="insight-card__copy">
+            No data loaded yet. Run a search to light up the seismic readout.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel panel--results">
+        <div class="panel__heading panel__heading--results">
+          <div>
+            <p class="kicker">Event feed</p>
+            <h2>Detected earthquakes</h2>
+          </div>
+          <p id="resultsMeta" class="results-meta">No search performed yet.</p>
+        </div>
+
+        <div id="results" class="results-list" aria-live="polite">
+          <article class="empty-state">
+            <p class="empty-state__title">Your results will appear here.</p>
+            <p class="empty-state__copy">
+              Try a 7-day search with magnitude 4.5 or higher to start with a useful data set.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
