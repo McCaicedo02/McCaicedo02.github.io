@@ -72,8 +72,46 @@ const majorEarthquakeEvents = [
     year: '1906',
     magnitude: '7.9',
     detail: 'Fires after the rupture devastated the city and made this one of the most famous U.S. earthquakes.'
+  },
+  {
+    title: 'Assam-Tibet',
+    year: '1950',
+    magnitude: '8.6',
+    detail: 'Violent shaking triggered landslides across the Himalayas and altered river systems in the region.'
+  },
+  {
+    title: 'Rat Islands, Alaska',
+    year: '1965',
+    magnitude: '8.7',
+    detail: 'A major Aleutian subduction quake generated a tsunami that was recorded across the Pacific basin.'
+  },
+  {
+    title: 'Chile-Argentina Border',
+    year: '1894',
+    magnitude: '8.5',
+    detail: 'This powerful Andes earthquake damaged settlements over a wide area and was felt across western Argentina.'
+  },
+  {
+    title: 'Arica, Peru',
+    year: '1868',
+    magnitude: '8.8',
+    detail: 'A destructive tsunami followed the rupture and affected coastal communities far beyond South America.'
+  },
+  {
+    title: 'Messina, Italy',
+    year: '1908',
+    magnitude: '7.1',
+    detail: 'The quake and tsunami devastated Messina and Reggio Calabria, causing one of Europe\'s deadliest seismic disasters.'
+  },
+  {
+    title: 'Tangshan, China',
+    year: '1976',
+    magnitude: '7.5',
+    detail: 'This catastrophic urban earthquake caused immense destruction and remains one of the deadliest of the twentieth century.'
   }
 ];
+
+let lastMajorEarthquakeIndex = -1;
 
 function formatDateForInput(date) {
   return date.toISOString().split('T')[0];
@@ -321,7 +359,16 @@ function showRandomMajorEarthquake() {
     return;
   }
 
-  const event = majorEarthquakeEvents[Math.floor(Math.random() * majorEarthquakeEvents.length)];
+  let eventIndex = Math.floor(Math.random() * majorEarthquakeEvents.length);
+
+  if (majorEarthquakeEvents.length > 1) {
+    while (eventIndex === lastMajorEarthquakeIndex) {
+      eventIndex = Math.floor(Math.random() * majorEarthquakeEvents.length);
+    }
+  }
+
+  lastMajorEarthquakeIndex = eventIndex;
+  const event = majorEarthquakeEvents[eventIndex];
   randomQuakeTitle.textContent = event.title;
   randomQuakeMeta.textContent = `${event.year} · Magnitude ${event.magnitude}`;
   randomQuakeFact.textContent = event.detail;
