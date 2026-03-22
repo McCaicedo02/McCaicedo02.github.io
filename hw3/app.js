@@ -11,6 +11,9 @@ const topMagnitude = document.getElementById('topMagnitude');
 const averageMagnitude = document.getElementById('averageMagnitude');
 const latestEvent = document.getElementById('latestEvent');
 const insightMessage = document.getElementById('insightMessage');
+const hazardMeterCard = document.getElementById('hazardMeterCard');
+const hazardMeterValue = document.getElementById('hazardMeterValue');
+const hazardMeterLabel = document.getElementById('hazardMeterLabel');
 const startDateMessage = document.getElementById('startDateMessage');
 const endDateMessage = document.getElementById('endDateMessage');
 const magnitudeMessage = document.getElementById('magnitudeMessage');
@@ -19,10 +22,13 @@ const heroMonitorScreen = document.getElementById('heroMonitorScreen');
 const monitorEpicenter = document.getElementById('monitorEpicenter');
 const waveformBars = Array.from(document.querySelectorAll('.waveform span'));
 const monitorPrompt = document.getElementById('monitorPrompt');
+const monitorHoverCue = document.getElementById('monitorHoverCue');
 const randomQuakeButton = document.getElementById('randomQuakeButton');
+const randomQuakeCard = document.getElementById('randomQuakeCard');
 const randomQuakeTitle = document.getElementById('randomQuakeTitle');
 const randomQuakeMeta = document.getElementById('randomQuakeMeta');
 const randomQuakeFact = document.getElementById('randomQuakeFact');
+const randomQuakeAction = document.getElementById('randomQuakeAction');
 
 const majorEarthquakeEvents = [
   {
@@ -112,6 +118,57 @@ const majorEarthquakeEvents = [
 ];
 
 let lastMajorEarthquakeIndex = -1;
+
+function getHazardLevel(magnitude) {
+  if (!Number.isFinite(magnitude) || magnitude <= 0) {
+    return {
+      level: 0,
+      name: 'Standby',
+      detail: 'Awaiting signal from the live feed.'
+    };
+  }
+
+  if (magnitude < 3) {
+    return {
+      level: 2,
+      name: 'Advisory',
+      detail: 'Low tremor energy detected.'
+    };
+  }
+
+  if (magnitude < 5) {
+    return {
+      level: 3,
+      name: 'Elevated',
+      detail: 'Noticeable activity in the current set.'
+    };
+  }
+
+  if (magnitude < 6.5) {
+    return {
+      level: 4,
+      name: 'High',
+      detail: 'Strong shaking potential in the strongest event.'
+    };
+  }
+
+  return {
+    level: 5,
+    name: 'Critical',
+    detail: 'Major seismic energy detected.'
+  };
+}
+
+function updateHazardMeter(magnitude) {
+  if (!hazardMeterCard || !hazardMeterValue || !hazardMeterLabel) {
+    return;
+  }
+
+  const hazard = getHazardLevel(magnitude);
+  hazardMeterCard.dataset.level = String(hazard.level);
+  hazardMeterValue.textContent = hazard.name;
+  hazardMeterLabel.textContent = hazard.detail;
+}
 
 function formatDateForInput(date) {
   return date.toISOString().split('T')[0];
@@ -230,6 +287,7 @@ function updateSummary(features) {
     averageMagnitude.textContent = '--';
     latestEvent.textContent = 'No events';
     insightMessage.textContent = 'No earthquakes matched your filters. Try a wider date range or lower minimum magnitude.';
+    updateHazardMeter(0);
     return;
   }
 
@@ -244,6 +302,7 @@ function updateSummary(features) {
   averageMagnitude.textContent = average.toFixed(1);
   latestEvent.textContent = formatDateTime(latestTimestamp);
   insightMessage.textContent = `${strongestEvent.properties.place} was the strongest event in this result set at magnitude ${strongest.toFixed(1)}.`;
+  updateHazardMeter(strongest);
 }
 
 function renderResults(features) {
@@ -372,6 +431,10 @@ function showRandomMajorEarthquake() {
   randomQuakeTitle.textContent = event.title;
   randomQuakeMeta.textContent = `${event.year} · Magnitude ${event.magnitude}`;
   randomQuakeFact.textContent = event.detail;
+
+  if (randomQuakeAction) {
+    randomQuakeAction.textContent = 'Click again for another historic quake.';
+  }
 }
 
 function initializeMonitor() {
@@ -435,6 +498,9 @@ function initializeMonitor() {
     if (monitorPrompt) {
       monitorPrompt.textContent = 'Shake the cursor to drive live signal spikes';
     }
+    if (monitorHoverCue) {
+      monitorHoverCue.classList.remove('is-hidden');
+    }
   });
 
   heroMonitorScreen.addEventListener('pointermove', (event) => {
@@ -458,6 +524,10 @@ function initializeMonitor() {
         monitorPrompt.textContent = 'Live seismic simulation active';
         monitorPrompt.classList.add('is-hidden');
       }
+
+      if (monitorHoverCue) {
+        monitorHoverCue.classList.add('is-hidden');
+      }
     }
   });
 
@@ -466,6 +536,10 @@ function initializeMonitor() {
 
     if (!hasInteracted && monitorPrompt) {
       monitorPrompt.textContent = 'Hover here and shake the cursor to spike the bars';
+    }
+
+    if (!hasInteracted && monitorHoverCue) {
+      monitorHoverCue.classList.remove('is-hidden');
     }
   });
 
@@ -481,6 +555,7 @@ function initializeMonitor() {
 setDefaultDates();
 validateDateInputs();
 validateMagnitudeInput();
+updateHazardMeter(0);
 initializeMonitor();
 
 quakeForm.addEventListener('submit', handleSearch);
@@ -490,6 +565,16 @@ minMagnitudeInput.addEventListener('input', validateMagnitudeInput);
 
 if (randomQuakeButton) {
   randomQuakeButton.addEventListener('click', showRandomMajorEarthquake);
+}
+
+if (randomQuakeCard) {
+  randomQuakeCard.addEventListener('click', showRandomMajorEarthquake);
+  randomQuakeCard.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      showRandomMajorEarthquake();
+    }
+  });
 }
 
 quickPickButtons.forEach((button) => {

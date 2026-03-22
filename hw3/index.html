@@ -94,7 +94,11 @@
             </div>
             <p class="hero-monitor__prompt" id="monitorPrompt">Hover here and shake the cursor to spike the bars</p>
           </div>
-          <div class="hero-monitor__screen" id="heroMonitorScreen">
+          <div class="hero-monitor__screen" id="heroMonitorScreen" tabindex="0" aria-label="Interactive signal monitor. Hover and move your cursor to animate seismic spikes.">
+            <div class="hero-monitor__hover-cue" id="monitorHoverCue" aria-hidden="true">
+              <span class="hero-monitor__hover-icon"></span>
+              <span>Hover and move here</span>
+            </div>
             <div class="monitor-epicenter" id="monitorEpicenter" aria-hidden="true"></div>
             <div class="waveform">
               <span></span>
@@ -134,12 +138,19 @@
             <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
               Show random major quake
             </button>
-            <div class="hero-archive__event">
+            <div
+              class="hero-archive__event"
+              id="randomQuakeCard"
+              role="button"
+              tabindex="0"
+              aria-label="Show another random historic earthquake"
+            >
               <p class="hero-archive__event-title" id="randomQuakeTitle">Awaiting archive pull</p>
               <p class="hero-archive__event-meta" id="randomQuakeMeta">Year · Region · Magnitude</p>
               <p class="hero-monitor__fact" id="randomQuakeFact">
-                Click the button to load a historic major earthquake and make this section feel alive.
+                Click the button or this card to load a historic major earthquake and make this section feel alive.
               </p>
+              <p class="hero-archive__event-action" id="randomQuakeAction">Click anywhere in this card for a random quake.</p>
             </div>
           </div>
         </article>
@@ -187,6 +198,7 @@
           </label>
 
           <div class="quick-picks" aria-label="Quick date ranges">
+            <p class="quick-picks__label">Quick ranges</p>
             <button type="button" class="quick-picks__button" data-days="1">Past 24 hours</button>
             <button type="button" class="quick-picks__button" data-days="7">Past 7 days</button>
             <button type="button" class="quick-picks__button" data-days="30">Past 30 days</button>
@@ -224,6 +236,27 @@
           <article class="readout-line">
             <span>Latest event</span>
             <strong id="latestEvent">Waiting</strong>
+          </article>
+
+          <article class="hazard-meter" id="hazardMeterCard" aria-label="Seismic threat meter">
+            <div class="hazard-meter__header">
+              <span>Seismic level</span>
+              <p id="hazardMeterValue">Standby</p>
+            </div>
+            <div class="hazard-meter__body">
+              <div class="hazard-meter__bars" id="hazardMeterBars" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="hazard-meter__radar" aria-hidden="true">
+                <span class="hazard-meter__sweep"></span>
+                <span class="hazard-meter__dot"></span>
+              </div>
+            </div>
+            <p id="hazardMeterLabel" class="hazard-meter__status">Awaiting signal from the live feed.</p>
           </article>
         </div>
 
