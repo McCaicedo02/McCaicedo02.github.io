@@ -128,6 +128,32 @@ function updatePageStatus(message) {
   }
 }
 
+function fetchJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `jsonpCallback_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    const script = document.createElement('script');
+    const separator = url.includes('?') ? '&' : '?';
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      delete window[callbackName];
+      script.remove();
+    }
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('JSONP request failed'));
+    };
+
+    script.src = `${url}${separator}format=jsonp&callback=${callbackName}`;
+    document.body.appendChild(script);
+  });
+}
+
 function getCompletionPercent(completed, total) {
   return `${Math.max(14, Math.round((completed / total) * 100))}%`;
 }
@@ -206,6 +232,45 @@ function syncStatusPanel() {
   statusDetail.textContent = `Profile scan in progress. ${progress.pending.length} checkpoint${progress.pending.length === 1 ? '' : 's'} left before launch.`;
   statusHint.textContent = `Still needed: ${hintItems.join(', ')}.`;
   statusAction.textContent = `Fix ${progress.pending[0].label}`;
+}
+
+function normalizeCountyName(countyName) {
+  return countyName.replace(/\s+(County|Parish|Borough|Census Area|Municipality)$/u, '').trim();
+}
+
+async function autoSelectCountyFromCoordinates() {
+  if (!longitudeField.value || !latitudeField.value || !stateField.value) {
+    return;
+  }
+
+  try {
+    const data = await fetchJsonp(
+      `https://geocoding.geo.census.gov/geocoder/geographies/coordinates?x=${encodeURIComponent(longitudeField.value)}&y=${encodeURIComponent(latitudeField.value)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=Counties`
+    );
+
+    const countyName = data?.result?.geographies?.Counties?.[0]?.NAME;
+
+    if (!countyName) {
+      return;
+    }
+
+    const normalizedCounty = normalizeCountyName(countyName);
+    const matchingOption = Array.from(countyField.options).find(
+      (option) => option.value === normalizedCounty
+    );
+
+    if (!matchingOption) {
+      return;
+    }
+
+    countyField.value = matchingOption.value;
+    markField(countyField, true);
+    setMessage(stateMessage, `${matchingOption.value} county selected automatically from ZIP.`, 'success');
+  } catch (error) {
+    // Leave county manual if the reverse lookup is unavailable.
+  } finally {
+    syncStatusPanel();
+  }
 }
 
 function jumpToField(fieldId) {
@@ -329,6 +394,7 @@ async function handleZipInput() {
       if (stateAbbreviation) {
         stateField.value = stateAbbreviation;
         await handleStateChange();
+        await autoSelectCountyFromCoordinates();
       }
     }
 
