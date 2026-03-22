@@ -31,12 +31,26 @@
 
       <section class="hero-band">
         <div class="hero-copy">
-          <p class="kicker">Retro seismic observatory</p>
-          <h1>Seismic Scope</h1>
-          <p class="site-header__copy">
-            Track earthquake activity by date and magnitude through a live USGS data feed, styled
-            like an old control room display.
-          </p>
+          <div class="hero-copy__shell">
+            <div class="hero-copy__main">
+              <p class="kicker">Retro seismic observatory</p>
+              <h1>Seismic Scope</h1>
+              <p class="site-header__copy">
+                Track earthquake activity by date and magnitude through a live USGS data feed,
+                styled like an old control room display.
+              </p>
+            </div>
+
+            <aside class="hero-copy__console" aria-label="System status">
+              <p class="hero-copy__console-label">Station terminal</p>
+              <div class="hero-copy__console-screen">
+                <p><span>status</span><strong> seismic uplink stable</strong></p>
+                <p><span>source</span><strong> usgs geojson endpoint</strong></p>
+                <p><span>mode</span><strong> live query + archive scan</strong></p>
+                <p><span>alert</span><strong> monitor armed for cursor simulation</strong></p>
+              </div>
+            </aside>
+          </div>
 
           <div class="ticker" aria-label="Feature highlights">
             <span>LIVE TREMOR FEED</span>
@@ -44,6 +58,13 @@
             <span>MAGNITUDE VALIDATION</span>
             <span>ANIMATED READOUT</span>
             <span>USGS GEOJSON DATA</span>
+            <span>SIGNAL SIMULATION</span>
+            <span aria-hidden="true">LIVE TREMOR FEED</span>
+            <span aria-hidden="true">DATE RANGE FILTERS</span>
+            <span aria-hidden="true">MAGNITUDE VALIDATION</span>
+            <span aria-hidden="true">ANIMATED READOUT</span>
+            <span aria-hidden="true">USGS GEOJSON DATA</span>
+            <span aria-hidden="true">SIGNAL SIMULATION</span>
           </div>
         </div>
 
@@ -80,16 +101,21 @@
             </div>
             <div class="monitor-grid"></div>
             <p class="hero-monitor__readout">TECTONIC ACTIVITY // SIGNAL STABLE</p>
-            <div class="hero-monitor__fact-panel">
-              <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
-                Random major quake
-              </button>
-              <p class="hero-monitor__fact" id="randomQuakeFact">
-                Click for a historic major earthquake event.
-              </p>
-            </div>
           </div>
         </aside>
+
+        <article class="hero-archive">
+          <div class="hero-archive__header">
+            <p class="hero-monitor__label">Historic quake archive</p>
+            <p class="hero-archive__hint">Separate from the live simulator</p>
+          </div>
+          <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
+            Random major quake
+          </button>
+          <p class="hero-monitor__fact" id="randomQuakeFact">
+            Click for a historic major earthquake event.
+          </p>
+        </article>
       </section>
     </header>
 
