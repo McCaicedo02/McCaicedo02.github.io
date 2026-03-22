@@ -254,6 +254,7 @@ body::before {
   display: grid;
   gap: 0.7rem;
   align-content: start;
+  min-height: 100%;
   padding: 0.95rem;
   border: 1px solid rgba(143, 255, 208, 0.24);
   background:
@@ -280,9 +281,11 @@ body::before {
 }
 
 .hero-copy__console-screen p {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
   gap: 0.8rem;
+  min-height: 2.95rem;
   padding: 0.55rem 0.65rem;
   border-left: 2px solid rgba(143, 255, 208, 0.5);
   background: rgba(143, 255, 208, 0.07);
@@ -303,7 +306,7 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 0.72rem;
-  text-align: right;
+  text-align: left;
   text-shadow: 0 0 12px rgba(143, 255, 208, 0.16);
 }
 
@@ -335,8 +338,8 @@ body::before {
 }
 
 .hero-archive {
-  width: min(560px, 100%);
-  justify-self: end;
+  width: min(760px, 100%);
+  justify-self: center;
   padding: 1.1rem;
   border: 1px solid var(--line);
   background:
@@ -592,7 +595,8 @@ body::before {
   padding-bottom: 4rem;
   display: grid;
   gap: 1.3rem;
-  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .panel {
@@ -602,6 +606,13 @@ body::before {
     var(--panel);
   box-shadow: var(--shadow);
   padding: 1.35rem;
+}
+
+.panel--form,
+.panel--summary {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .panel--results {
@@ -720,6 +731,7 @@ body::before {
   flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
+  margin-top: auto;
 }
 
 .primary-button {
