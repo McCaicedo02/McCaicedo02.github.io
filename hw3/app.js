@@ -305,6 +305,41 @@ function updateSummary(features) {
   updateHazardMeter(strongest);
 }
 
+function getMagnitudeTier(magnitude) {
+  if (!Number.isFinite(magnitude)) {
+    return {
+      tone: 'unknown',
+      label: 'Unrated'
+    };
+  }
+
+  if (magnitude < 3.5) {
+    return {
+      tone: 'low',
+      label: 'Light'
+    };
+  }
+
+  if (magnitude < 5) {
+    return {
+      tone: 'medium',
+      label: 'Elevated'
+    };
+  }
+
+  if (magnitude < 6.5) {
+    return {
+      tone: 'high',
+      label: 'Strong'
+    };
+  }
+
+  return {
+    tone: 'extreme',
+    label: 'Severe'
+  };
+}
+
 function renderResults(features) {
   if (features.length === 0) {
     renderEmptyState(
@@ -319,9 +354,10 @@ function renderResults(features) {
     .map((feature) => {
       const { mag, place, time, url } = feature.properties;
       const [longitude, latitude, depth] = feature.geometry.coordinates;
+      const tier = getMagnitudeTier(mag);
 
       return `
-        <article class="quake-card">
+        <article class="quake-card quake-card--${tier.tone}">
           <div class="quake-card__magnitude">
             <span>Magnitude</span>
             <strong>${mag?.toFixed(1) ?? 'N/A'}</strong>
@@ -332,6 +368,7 @@ function renderResults(features) {
               Recorded ${formatDateTime(time)}.
             </p>
             <div class="quake-card__chips">
+              <span>${tier.label}</span>
               <span>${formatDepth(depth)}</span>
               <span>${latitude.toFixed(2)}, ${longitude.toFixed(2)}</span>
             </div>
