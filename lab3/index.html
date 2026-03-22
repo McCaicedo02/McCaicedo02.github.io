@@ -31,8 +31,8 @@
           <p class="brand-lockup__title">OTTER.OS Account Services</p>
         </div>
         <div class="site-header__meta">
-          <span>Secure Identity Access</span>
-          <span>Retro Sign Up Portal</span>
+          <span class="header-chip">Secure Identity Access</span>
+          <span class="header-chip">Retro Sign Up Portal</span>
         </div>
       </div>
     </header>
@@ -42,45 +42,65 @@
         <div class="hero-band__inner">
           <div class="hero-copyblock">
             <p class="eyebrow">Monterey Bay network online. Otter mode enabled.</p>
-            <h1>Press start to build your CSUMB profile.</h1>
+            <h1>
+              Press
+              <button type="button" class="headline-start" onclick="jumpToSection('signupForm')">
+                start
+              </button>
+              to build your CSUMB profile.
+            </h1>
             <p class="hero-copy">
               Set up your OTTER.OS account to get your profile ready for campus access, personalized
               services, and a smoother sign-up experience from the start.
             </p>
 
             <div class="hero-banner">
-              <span>OTTER ID SYSTEM</span>
-              <span>LIVE COASTAL LINK</span>
-              <span>PLAYER ONE: STUDENT</span>
+              <span class="hero-chip">OTTER ID SYSTEM</span>
+              <span class="hero-chip">LIVE COASTAL LINK</span>
+              <span class="hero-chip">PLAYER ONE: STUDENT</span>
             </div>
 
             <div class="hero-metrics">
-              <article>
+              <button type="button" class="metric-card" onclick="jumpToField('zip')">
                 <span>Location</span>
                 <strong>ZIP to city + coordinates</strong>
-              </article>
-              <article>
+              </button>
+              <button type="button" class="metric-card" onclick="jumpToField('state')">
                 <span>State Directory</span>
                 <strong>All 50 states loaded on arrival</strong>
-              </article>
-              <article>
+              </button>
+              <button type="button" class="metric-card" onclick="jumpToField('username')">
                 <span>Validation</span>
                 <strong>Live checks before submit</strong>
-              </article>
+              </button>
             </div>
           </div>
 
           <aside class="hero-aside">
             <p class="hero-aside__label">System status</p>
-            <p class="status-pill" id="pageStatus">Ready to validate</p>
+            <button type="button" class="status-pill" id="pageStatus" onclick="handleStatusAction()">
+              Signup form ready
+            </button>
             <div class="status-stack">
               <p><span>Signal</span><strong>Monterey Bay Stable</strong></p>
               <p><span>Theme</span><strong>Otterwave Arcade</strong></p>
             </div>
-            <div class="coastline">
-              <span></span>
-              <span></span>
-              <span></span>
+            <div class="status-module">
+              <div class="status-track" aria-hidden="true">
+                <span class="status-track__bar"></span>
+                <span class="status-track__bar"></span>
+                <span class="status-track__bar"></span>
+              </div>
+              <p class="status-detail" id="statusDetail">Open the form and begin entering your profile details.</p>
+              <button
+                type="button"
+                class="status-cta ghost-button"
+                id="statusAction"
+                onclick="handleStatusAction()"
+              >
+                Jump to form
+              </button>
+              <p class="status-hint" id="statusHint">Still needed: first name, username, ZIP lookup.</p>
             </div>
             <p class="hero-aside__note">
               From Monterey Bay to your dashboard, this sign-up page is built to feel welcoming,
@@ -90,7 +110,7 @@
         </div>
       </section>
 
-      <section class="form-band">
+      <section class="form-band" id="signupSection">
         <div class="form-band__inner">
           <div class="section-heading">
             <div>
@@ -121,7 +141,7 @@
                 name="username"
                 type="text"
                 placeholder="Choose a username"
-                oninput="resetUsernameState()"
+                oninput="handleUsernameInput()"
                 onblur="checkUsernameAvailability()"
                 required
               />
@@ -223,7 +243,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="primary-button">Submit</button>
+              <button type="submit" class="primary-button" id="submitButton">Submit</button>
               <button type="reset" class="ghost-button" onclick="resetFormState()">Reset</button>
             </div>
 
