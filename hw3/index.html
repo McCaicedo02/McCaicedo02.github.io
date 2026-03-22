@@ -48,9 +48,23 @@
         </div>
 
         <aside class="hero-monitor">
-          <p class="hero-monitor__label">Signal monitor</p>
-          <div class="hero-monitor__screen">
+          <div class="hero-monitor__header">
+            <div class="hero-monitor__title-group">
+              <p class="hero-monitor__label">Signal monitor</p>
+              <div class="hero-monitor__live" aria-hidden="true">
+                <span class="hero-monitor__live-dot"></span>
+                <span>Live feed</span>
+              </div>
+            </div>
+            <p class="hero-monitor__prompt" id="monitorPrompt">Hover here and shake the cursor to spike the bars</p>
+          </div>
+          <div class="hero-monitor__screen" id="heroMonitorScreen">
+            <div class="monitor-epicenter" id="monitorEpicenter" aria-hidden="true"></div>
             <div class="waveform">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
               <span></span>
               <span></span>
               <span></span>
@@ -66,6 +80,14 @@
             </div>
             <div class="monitor-grid"></div>
             <p class="hero-monitor__readout">TECTONIC ACTIVITY // SIGNAL STABLE</p>
+            <div class="hero-monitor__fact-panel">
+              <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
+                Random major quake
+              </button>
+              <p class="hero-monitor__fact" id="randomQuakeFact">
+                Click for a historic major earthquake event.
+              </p>
+            </div>
           </div>
         </aside>
       </section>

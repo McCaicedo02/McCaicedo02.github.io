@@ -15,6 +15,63 @@ const startDateMessage = document.getElementById('startDateMessage');
 const endDateMessage = document.getElementById('endDateMessage');
 const magnitudeMessage = document.getElementById('magnitudeMessage');
 const quickPickButtons = document.querySelectorAll('.quick-picks__button');
+const heroMonitorScreen = document.getElementById('heroMonitorScreen');
+const monitorEpicenter = document.getElementById('monitorEpicenter');
+const waveformBars = Array.from(document.querySelectorAll('.waveform span'));
+const monitorPrompt = document.getElementById('monitorPrompt');
+const randomQuakeButton = document.getElementById('randomQuakeButton');
+const randomQuakeFact = document.getElementById('randomQuakeFact');
+
+const majorEarthquakeEvents = [
+  {
+    title: 'Valdivia, Chile',
+    year: '1960',
+    magnitude: '9.5',
+    detail: 'The strongest earthquake ever instrumentally recorded triggered tsunamis across the Pacific.'
+  },
+  {
+    title: 'Prince William Sound, Alaska',
+    year: '1964',
+    magnitude: '9.2',
+    detail: 'This Good Friday earthquake caused major ground failure, landslides, and a destructive tsunami.'
+  },
+  {
+    title: 'Indian Ocean, Sumatra-Andaman',
+    year: '2004',
+    magnitude: '9.1',
+    detail: 'A massive undersea rupture generated a tsunami that impacted countries across the Indian Ocean.'
+  },
+  {
+    title: 'Tohoku, Japan',
+    year: '2011',
+    magnitude: '9.1',
+    detail: 'The quake and tsunami devastated northeastern Japan and triggered the Fukushima nuclear disaster.'
+  },
+  {
+    title: 'Maule, Chile',
+    year: '2010',
+    magnitude: '8.8',
+    detail: 'One of the largest recorded Chilean earthquakes caused severe shaking and tsunami damage.'
+  },
+  {
+    title: 'Kamchatka, Russia',
+    year: '1952',
+    magnitude: '9.0',
+    detail: 'This giant subduction quake produced a Pacific-wide tsunami observed as far as Hawaii.'
+  },
+  {
+    title: 'Lisbon, Portugal',
+    year: '1755',
+    magnitude: '8.5-9.0',
+    detail: 'The quake, fires, and tsunami destroyed much of Lisbon and reshaped European disaster thinking.'
+  },
+  {
+    title: 'San Francisco, California',
+    year: '1906',
+    magnitude: '7.9',
+    detail: 'Fires after the rupture devastated the city and made this one of the most famous U.S. earthquakes.'
+  }
+];
 
 function formatDateForInput(date) {
   return date.toISOString().split('T')[0];
@@ -255,14 +312,133 @@ function applyQuickRange(days) {
   formStatus.textContent = `Date range updated to the past ${days} day${days === 1 ? '' : 's'}.`;
 }
 
+function showRandomMajorEarthquake() {
+  if (!randomQuakeFact) {
+    return;
+  }
+
+  const event = majorEarthquakeEvents[Math.floor(Math.random() * majorEarthquakeEvents.length)];
+  randomQuakeFact.textContent =
+    `${event.year} · ${event.title} · M${event.magnitude}. ${event.detail}`;
+}
+
+function initializeMonitor() {
+  if (!heroMonitorScreen || !monitorEpicenter || waveformBars.length === 0) {
+    return;
+  }
+
+  const baseHeights = [16, 22, 30, 24, 42, 28, 54, 34, 66, 38, 58, 30, 46, 26, 36, 22];
+  let motion = 0;
+  let pointerX = 0.5;
+  let pointerY = 0.5;
+  let lastX = 0.5;
+  let lastY = 0.5;
+  let isActive = false;
+  let hasInteracted = false;
+  let animationFrameId = 0;
+
+  function updateBars() {
+    waveformBars.forEach((bar, index) => {
+      const spread = waveformBars.length > 1 ? index / (waveformBars.length - 1) : 0.5;
+      const distance = Math.abs(spread - pointerX);
+      const proximity = Math.max(0, 1 - distance * 2.35);
+      const verticalLift = Math.max(0.2, 1 - pointerY * 0.75);
+      const pulse = Math.sin(performance.now() / 120 + index * 0.8) * 0.5 + 0.5;
+      const quakeBoost = proximity * (42 + motion * 26) * verticalLift;
+      const height = Math.min(94, baseHeights[index] + quakeBoost + pulse * 8);
+      const glow = Math.min(0.9, 0.24 + proximity * 0.4 + motion * 0.12);
+
+      bar.style.setProperty('--bar-height', `${height}%`);
+      bar.style.setProperty('--bar-scale', `${1 + proximity * 0.16 + motion * 0.05}`);
+      bar.style.setProperty('--bar-glow', glow.toFixed(2));
+      bar.style.boxShadow = `0 0 ${12 + proximity * 18 + motion * 8}px rgba(255, 106, 61, ${0.26 + glow * 0.28})`;
+    });
+  }
+
+  function animateMonitor() {
+    motion *= isActive ? 0.92 : 0.88;
+
+    if (!isActive) {
+      pointerX += (0.5 - pointerX) * 0.08;
+      pointerY += (0.62 - pointerY) * 0.08;
+    }
+
+    heroMonitorScreen.style.setProperty('--monitor-tilt-x', `${(pointerX - 0.5) * 8}`);
+    heroMonitorScreen.style.setProperty('--monitor-tilt-y', `${(0.5 - pointerY) * 6}`);
+    heroMonitorScreen.style.setProperty('--monitor-shift-x', `${(Math.random() - 0.5) * motion * 7}px`);
+    heroMonitorScreen.style.setProperty('--monitor-shift-y', `${(Math.random() - 0.5) * motion * 10}px`);
+    heroMonitorScreen.style.setProperty('--epicenter-x', `${(pointerX * 100).toFixed(2)}%`);
+    heroMonitorScreen.style.setProperty('--epicenter-y', `${(pointerY * 100).toFixed(2)}%`);
+    heroMonitorScreen.style.setProperty('--epicenter-opacity', `${Math.min(0.92, 0.16 + motion * 0.24)}`);
+    heroMonitorScreen.style.setProperty('--epicenter-scale', `${0.72 + motion * 0.1}`);
+    heroMonitorScreen.style.setProperty('--monitor-invite-opacity', hasInteracted ? '0.08' : '0.45');
+
+    updateBars();
+
+    animationFrameId = window.requestAnimationFrame(animateMonitor);
+  }
+
+  heroMonitorScreen.addEventListener('pointerenter', () => {
+    isActive = true;
+    if (monitorPrompt) {
+      monitorPrompt.textContent = 'Shake the cursor to drive live signal spikes';
+    }
+  });
+
+  heroMonitorScreen.addEventListener('pointermove', (event) => {
+    const bounds = heroMonitorScreen.getBoundingClientRect();
+    const nextX = (event.clientX - bounds.left) / bounds.width;
+    const nextY = (event.clientY - bounds.top) / bounds.height;
+
+    pointerX = Math.min(1, Math.max(0, nextX));
+    pointerY = Math.min(1, Math.max(0, nextY));
+
+    const deltaX = pointerX - lastX;
+    const deltaY = pointerY - lastY;
+    motion = Math.min(3.2, motion + Math.hypot(deltaX, deltaY) * 22);
+    lastX = pointerX;
+    lastY = pointerY;
+
+    if (!hasInteracted && motion > 0.5) {
+      hasInteracted = true;
+
+      if (monitorPrompt) {
+        monitorPrompt.textContent = 'Live seismic simulation active';
+        monitorPrompt.classList.add('is-hidden');
+      }
+    }
+  });
+
+  heroMonitorScreen.addEventListener('pointerleave', () => {
+    isActive = false;
+
+    if (!hasInteracted && monitorPrompt) {
+      monitorPrompt.textContent = 'Hover here and shake the cursor to spike the bars';
+    }
+  });
+
+  monitorEpicenter.setAttribute('aria-hidden', 'true');
+  updateBars();
+  animationFrameId = window.requestAnimationFrame(animateMonitor);
+
+  window.addEventListener('beforeunload', () => {
+    window.cancelAnimationFrame(animationFrameId);
+  });
+}
+
 setDefaultDates();
 validateDateInputs();
 validateMagnitudeInput();
+initializeMonitor();
 
 quakeForm.addEventListener('submit', handleSearch);
 startDateInput.addEventListener('change', validateDateInputs);
 endDateInput.addEventListener('change', validateDateInputs);
 minMagnitudeInput.addEventListener('input', validateMagnitudeInput);
+
+if (randomQuakeButton) {
+  randomQuakeButton.addEventListener('click', showRandomMajorEarthquake);
+}
 
 quickPickButtons.forEach((button) => {
   button.addEventListener('click', () => {
