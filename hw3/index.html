@@ -287,6 +287,29 @@
           <p id="resultsMeta" class="results-meta">No search performed yet.</p>
         </div>
 
+        <div class="results-toolbar" aria-label="Result filters">
+          <label class="results-filter">
+            <span>Region</span>
+            <select id="regionFilter" disabled>
+              <option value="all">All regions</option>
+            </select>
+          </label>
+
+          <label class="results-filter">
+            <span>Show</span>
+            <select id="resultLimit" disabled>
+              <option value="12">12 events</option>
+              <option value="25">25 events</option>
+              <option value="50">50 events</option>
+              <option value="all">All events</option>
+            </select>
+          </label>
+
+          <button id="resetButton" class="secondary-button results-reset" type="button" disabled>
+            Clear results
+          </button>
+        </div>
+
         <div id="results" class="results-list" aria-live="polite">
           <article class="empty-state">
             <p class="empty-state__title">Your results will appear here.</p>

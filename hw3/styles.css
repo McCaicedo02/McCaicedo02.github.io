@@ -1272,7 +1272,8 @@ body::after {
 }
 
 .quick-picks__button,
-.primary-button {
+.primary-button,
+.secondary-button {
   border: 0;
   cursor: pointer;
   font: inherit;
@@ -1383,6 +1384,55 @@ body::after {
   clip-path: polygon(0.8rem 0, 100% 0, 100% 100%, 0 100%, 0 0.8rem);
   animation: search-button-glow 2.6s ease-in-out infinite;
   filter: saturate(1.03);
+}
+
+.secondary-button {
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(255, 179, 71, 0.24);
+  background:
+    linear-gradient(180deg, rgba(255, 179, 71, 0.12), rgba(255, 106, 61, 0.04)),
+    rgba(16, 11, 10, 0.94);
+  color: var(--sand);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 168, 0.04),
+    0 10px 20px rgba(0, 0, 0, 0.16);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+.secondary-button:hover,
+.secondary-button:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 214, 168, 0.4);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 168, 0.08),
+    0 14px 26px rgba(255, 106, 61, 0.14);
+  color: #fff7e8;
+}
+
+.secondary-button:active {
+  transform: translateY(0);
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 168, 0.03),
+    0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.results-reset {
+  min-height: 3rem;
+  padding-inline: 1.2rem;
+  align-self: end;
 }
 
 .primary-button::before {
@@ -1879,6 +1929,48 @@ body::after {
   gap: 1rem;
 }
 
+.results-toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px)) auto;
+  gap: 0.9rem;
+  margin-top: 1.2rem;
+  align-items: end;
+}
+
+.results-filter {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.results-filter span {
+  color: var(--smoke);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+}
+
+.results-filter select {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(255, 179, 71, 0.18);
+  border-radius: 0;
+  background: rgba(14, 9, 9, 0.92);
+  color: var(--cream);
+  font: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 179, 71, 0.04);
+}
+
+.results-filter select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.results-filter select:focus-visible {
+  outline: 2px solid rgba(255, 179, 71, 0.45);
+  outline-offset: 2px;
+}
+
 .quake-card,
 .empty-state {
   position: relative;
@@ -2322,6 +2414,10 @@ body::after {
 
   .panel__heading--results,
   .quake-card {
+    grid-template-columns: 1fr;
+  }
+
+  .results-toolbar {
     grid-template-columns: 1fr;
   }
 

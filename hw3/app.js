@@ -3,9 +3,12 @@ const startDateInput = document.getElementById('startDate');
 const endDateInput = document.getElementById('endDate');
 const minMagnitudeInput = document.getElementById('minMagnitude');
 const searchButton = document.getElementById('searchButton');
+const resetButton = document.getElementById('resetButton');
 const formStatus = document.getElementById('formStatus');
 const resultsMeta = document.getElementById('resultsMeta');
 const results = document.getElementById('results');
+const regionFilter = document.getElementById('regionFilter');
+const resultLimit = document.getElementById('resultLimit');
 const matchCount = document.getElementById('matchCount');
 const topMagnitude = document.getElementById('topMagnitude');
 const averageMagnitude = document.getElementById('averageMagnitude');
@@ -118,6 +121,7 @@ const majorEarthquakeEvents = [
 ];
 
 let lastMajorEarthquakeIndex = -1;
+let currentFeatures = [];
 
 function getHazardLevel(magnitude) {
   if (!Number.isFinite(magnitude) || magnitude <= 0) {
@@ -271,6 +275,33 @@ function formatDepth(depth) {
   return `${depth.toFixed(1)} km deep`;
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => {
+    const entities = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+
+    return entities[character];
+  });
+}
+
+function getRegionName(place = '') {
+  const parts = place
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'Unspecified region';
+  }
+
+  return parts[parts.length - 1];
+}
+
 function renderEmptyState(title, message) {
   results.innerHTML = `
     <article class="empty-state">
@@ -344,17 +375,20 @@ function renderResults(features) {
   if (features.length === 0) {
     renderEmptyState(
       'No earthquakes found.',
-      'There were no earthquake events matching this date range and minimum magnitude.'
+      'There were no earthquake events matching the current search and filter settings.'
     );
     return;
   }
 
-  const cards = features
-    .slice(0, 12)
+  const limitValue = resultLimit?.value ?? '12';
+  const visibleFeatures = limitValue === 'all' ? features : features.slice(0, Number(limitValue));
+
+  const cards = visibleFeatures
     .map((feature) => {
       const { mag, place, time, url } = feature.properties;
       const [longitude, latitude, depth] = feature.geometry.coordinates;
       const tier = getMagnitudeTier(mag);
+      const region = getRegionName(place);
 
       return `
         <article class="quake-card quake-card--${tier.tone}">
@@ -370,6 +404,7 @@ function renderResults(features) {
             <div class="quake-card__chips">
               <span>${tier.label}</span>
               <span>${formatDepth(depth)}</span>
+              <span>${escapeHtml(region)}</span>
               <span>${latitude.toFixed(2)}, ${longitude.toFixed(2)}</span>
             </div>
           </div>
@@ -383,6 +418,85 @@ function renderResults(features) {
     .join('');
 
   results.innerHTML = cards;
+}
+
+function populateRegionFilter(features) {
+  if (!regionFilter) {
+    return;
+  }
+
+  const regions = [...new Set(features.map((feature) => getRegionName(feature.properties.place)))].sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  regionFilter.innerHTML = '<option value="all">All regions</option>';
+  regions.forEach((region) => {
+    regionFilter.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${escapeHtml(region)}">${escapeHtml(region)}</option>`
+    );
+  });
+
+  regionFilter.disabled = regions.length === 0;
+}
+
+function getFilteredFeatures() {
+  if (!regionFilter || regionFilter.value === 'all') {
+    return currentFeatures;
+  }
+
+  return currentFeatures.filter(
+    (feature) => getRegionName(feature.properties.place) === regionFilter.value
+  );
+}
+
+function updateResultsMeta(filteredFeatures) {
+  const totalMatches = currentFeatures.length;
+  const filteredMatches = filteredFeatures.length;
+  const limitValue = resultLimit?.value ?? '12';
+  const visibleMatches = limitValue === 'all' ? filteredMatches : Math.min(filteredMatches, Number(limitValue));
+  const regionLabel =
+    regionFilter && regionFilter.value !== 'all' ? ` in ${regionFilter.value}` : '';
+
+  resultsMeta.textContent =
+    `Showing ${visibleMatches} of ${filteredMatches} filtered earthquakes` +
+    `${regionLabel}. ${totalMatches} total matches from ${startDateInput.value} to ${endDateInput.value}.`;
+}
+
+function updateResultsView() {
+  const filteredFeatures = getFilteredFeatures();
+  updateSummary(filteredFeatures);
+  renderResults(filteredFeatures);
+  updateResultsMeta(filteredFeatures);
+}
+
+function resetResultsControls() {
+  if (regionFilter) {
+    regionFilter.innerHTML = '<option value="all">All regions</option>';
+    regionFilter.value = 'all';
+    regionFilter.disabled = true;
+  }
+
+  if (resultLimit) {
+    resultLimit.value = '12';
+    resultLimit.disabled = true;
+  }
+
+  if (resetButton) {
+    resetButton.disabled = true;
+  }
+}
+
+function resetSearchExperience() {
+  currentFeatures = [];
+  updateSummary([]);
+  resetResultsControls();
+  renderEmptyState(
+    'Your results will appear here.',
+    'Try a 7-day search with magnitude 4.5 or higher to start with a useful data set.'
+  );
+  formStatus.textContent = 'Detected earthquakes cleared. Your search filters are unchanged.';
+  resultsMeta.textContent = 'No search performed yet.';
 }
 
 async function fetchEarthquakes() {
@@ -418,20 +532,34 @@ async function handleSearch(event) {
 
   try {
     const data = await fetchEarthquakes();
-    const features = data.features ?? [];
+    currentFeatures = data.features ?? [];
 
-    updateSummary(features);
-    renderResults(features);
+    populateRegionFilter(currentFeatures);
+
+    if (resultLimit) {
+      resultLimit.disabled = currentFeatures.length === 0;
+    }
+
+    if (resetButton) {
+      resetButton.disabled = currentFeatures.length === 0;
+    }
+
+    updateResultsView();
 
     formStatus.textContent = 'Earthquake data loaded successfully.';
-    resultsMeta.textContent = `Showing ${Math.min(features.length, 12)} of ${features.length} matching earthquakes from ${startDateInput.value} to ${endDateInput.value}.`;
   } catch (error) {
+    currentFeatures = [];
     formStatus.textContent = error.message;
     resultsMeta.textContent = 'The request failed.';
     renderEmptyState(
       'Request failed.',
       'The USGS feed could not be loaded. Try again in a moment or change the search filters.'
     );
+    updateSummary([]);
+    resetResultsControls();
+    if (resetButton) {
+      resetButton.disabled = true;
+    }
   } finally {
     setLoadingState(false);
   }
@@ -594,11 +722,20 @@ validateDateInputs();
 validateMagnitudeInput();
 updateHazardMeter(0);
 initializeMonitor();
+resetResultsControls();
+
+if (resetButton) {
+  resetButton.disabled = true;
+}
 
 quakeForm.addEventListener('submit', handleSearch);
 startDateInput.addEventListener('change', validateDateInputs);
 endDateInput.addEventListener('change', validateDateInputs);
 minMagnitudeInput.addEventListener('input', validateMagnitudeInput);
+
+if (resetButton) {
+  resetButton.addEventListener('click', resetSearchExperience);
+}
 
 if (randomQuakeButton) {
   randomQuakeButton.addEventListener('click', showRandomMajorEarthquake);
@@ -612,6 +749,14 @@ if (randomQuakeCard) {
       showRandomMajorEarthquake();
     }
   });
+}
+
+if (regionFilter) {
+  regionFilter.addEventListener('change', updateResultsView);
+}
+
+if (resultLimit) {
+  resultLimit.addEventListener('change', updateResultsView);
 }
 
 quickPickButtons.forEach((button) => {
