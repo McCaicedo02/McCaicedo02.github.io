@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seismic Scope | HW 3 Fetch and Web APIs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="scene__scanlines"></div>
+      <div class="scene__grid"></div>
+      <div class="scene__fault scene__fault--one"></div>
+      <div class="scene__fault scene__fault--two"></div>
+      <div class="scene__pulse scene__pulse--one"></div>
+      <div class="scene__pulse scene__pulse--two"></div>
+      <div class="scene__ring"></div>
+    </div>
+
+    <header class="site-header">
+      <div class="site-header__topline">
+        <p class="site-header__eyebrow">CST 336 · HW 3 · Fetch + Web APIs</p>
+        <p class="site-header__stamp">USGS live feed connected</p>
+      </div>
+
+      <section class="hero-band">
+        <div class="hero-copy">
+          <div class="hero-copy__shell">
+            <div class="hero-copy__main">
+              <p class="kicker">Retro seismic observatory</p>
+              <h1>Seismic Scope</h1>
+              <p class="site-header__copy">
+                Track earthquake activity by date and magnitude through a live USGS data feed,
+                styled like an old control room display.
+              </p>
+            </div>
+          </div>
+
+          <div class="ticker" aria-label="Feature highlights">
+            <span>LIVE TREMOR FEED</span>
+            <span>DATE RANGE FILTERS</span>
+            <span>MAGNITUDE VALIDATION</span>
+            <span>ANIMATED READOUT</span>
+            <span>USGS GEOJSON DATA</span>
+            <span>SIGNAL SIMULATION</span>
+            <span aria-hidden="true">LIVE TREMOR FEED</span>
+            <span aria-hidden="true">DATE RANGE FILTERS</span>
+            <span aria-hidden="true">MAGNITUDE VALIDATION</span>
+            <span aria-hidden="true">ANIMATED READOUT</span>
+            <span aria-hidden="true">USGS GEOJSON DATA</span>
+            <span aria-hidden="true">SIGNAL SIMULATION</span>
+          </div>
+        </div>
+
+        <aside class="hero-terminal" aria-label="System status">
+          <div class="hero-terminal__topbar" aria-hidden="true">
+            <div class="hero-terminal__lights">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="hero-copy__console-label">Station terminal</p>
+            <p class="hero-terminal__stamp">node 04 // watch active</p>
+          </div>
+          <div class="hero-copy__console-screen">
+            <p><span>status</span><strong> seismic uplink stable</strong><em class="console-chip console-chip--good">online</em></p>
+            <p><span>source</span><strong> usgs geojson endpoint</strong><em class="console-chip console-chip--data">geojson</em></p>
+            <p><span>mode</span><strong> live query + archive scan</strong><em class="console-chip console-chip--warm">dual pass</em></p>
+            <p><span>alert</span><strong> monitor armed for cursor simulation</strong><em class="console-chip console-chip--warn">tracking</em></p>
+            <p><span>latency</span><strong> response window under 1.2 seconds</strong><em class="console-chip console-chip--good">nominal</em></p>
+            <p><span>archive</span><strong> historic spotlight ready for random pull</strong><em class="console-chip console-chip--data">standby</em></p>
+          </div>
+          <div class="hero-terminal__footer" aria-hidden="true">
+            <span class="hero-terminal__prompt">root@station</span>
+            <span class="hero-terminal__command">scan --feed usgs --mode live --cursor armed</span>
+            <span class="hero-terminal__cursor"></span>
+          </div>
+        </aside>
+
+        <aside class="hero-monitor">
+          <div class="hero-monitor__header">
+            <div class="hero-monitor__title-group">
+              <p class="hero-monitor__label">Signal monitor</p>
+              <div class="hero-monitor__live" aria-hidden="true">
+                <span class="hero-monitor__live-dot"></span>
+                <span>Live feed</span>
+              </div>
+            </div>
+            <p class="hero-monitor__prompt" id="monitorPrompt">Hover here and shake the cursor to spike the bars</p>
+          </div>
+          <div class="hero-monitor__screen" id="heroMonitorScreen" tabindex="0" aria-label="Interactive signal monitor. Hover and move your cursor to animate seismic spikes.">
+            <div class="hero-monitor__hover-cue" id="monitorHoverCue" aria-hidden="true">
+              <span class="hero-monitor__hover-icon"></span>
+              <span>Hover and move here</span>
+            </div>
+            <div class="monitor-epicenter" id="monitorEpicenter" aria-hidden="true"></div>
+            <div class="waveform">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="monitor-grid"></div>
+            <p class="hero-monitor__readout">TECTONIC ACTIVITY // SIGNAL STABLE</p>
+          </div>
+        </aside>
+
+        <article class="hero-archive">
+          <div class="hero-archive__header">
+            <p class="hero-monitor__label">Historic quake archive</p>
+            <p class="hero-archive__hint">Separate from the live simulator</p>
+          </div>
+          <div class="hero-archive__body">
+            <div class="hero-archive__intro">
+              <p class="hero-archive__title">Historic spotlight</p>
+              <p class="hero-archive__copy">
+                Pull a famous earthquake from history for quick context while exploring the live feed.
+              </p>
+            </div>
+            <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
+              Show random major quake
+            </button>
+            <div
+              class="hero-archive__event"
+              id="randomQuakeCard"
+              role="button"
+              tabindex="0"
+              aria-label="Show another random historic earthquake"
+            >
+              <p class="hero-archive__event-title" id="randomQuakeTitle">Awaiting archive pull</p>
+              <p class="hero-archive__event-meta" id="randomQuakeMeta">Year · Region · Magnitude</p>
+              <p class="hero-monitor__fact" id="randomQuakeFact">
+                Click the button or this card to load a historic major earthquake and make this section feel alive.
+              </p>
+              <p class="hero-archive__event-action" id="randomQuakeAction">Click anywhere in this card for a random quake.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--form">
+        <div class="panel__heading">
+          <p class="kicker">Query builder</p>
+          <h2>Search earthquake activity</h2>
+          <p class="panel__intro">
+            Pick a date range, set a minimum magnitude, then load matching events from the USGS feed.
+          </p>
+        </div>
+
+        <form id="quakeForm" class="quake-form" novalidate>
+          <label class="field">
+            <span>Start date</span>
+            <input id="startDate" name="startDate" type="date" required />
+            <small id="startDateMessage" class="field-message">Choose a start date.</small>
+          </label>
+
+          <label class="field">
+            <span>End date</span>
+            <input id="endDate" name="endDate" type="date" required />
+            <small id="endDateMessage" class="field-message">Choose an end date.</small>
+          </label>
+
+          <label class="field field--wide">
+            <span>Minimum magnitude</span>
+            <input
+              id="minMagnitude"
+              name="minMagnitude"
+              type="number"
+              min="0"
+              max="10"
+              step="0.1"
+              value="4.5"
+              required
+            />
+            <small id="magnitudeMessage" class="field-message">
+              Enter a value from 0.0 to 10.0.
+            </small>
+          </label>
+
+          <div class="quick-picks" aria-label="Quick date ranges">
+            <p class="quick-picks__label">Quick ranges</p>
+            <button type="button" class="quick-picks__button" data-days="1">Past 24 hours</button>
+            <button type="button" class="quick-picks__button" data-days="7">Past 7 days</button>
+            <button type="button" class="quick-picks__button" data-days="30">Past 30 days</button>
+          </div>
+
+          <div class="form-actions">
+            <button id="searchButton" class="primary-button" type="submit">Run search</button>
+            <p id="formStatus" class="form-status">Set your filters and load earthquake data.</p>
+          </div>
+        </form>
+
+        <div class="query-note">
+          <p class="query-note__label">Operator tip</p>
+          <p class="query-note__copy">
+            Start with the past 7 days at magnitude 4.5, then widen the range or lower the threshold if the feed comes back quiet. Keep the date range within 4 years because broader searches can exceed the USGS API result limit.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel panel--summary">
+        <div class="panel__heading">
+          <p class="kicker">Live snapshot</p>
+          <h2>Control room readout</h2>
+          <p class="panel__intro">
+            Read the headline stats first, then scan the event feed for individual earthquakes.
+          </p>
+        </div>
+
+        <div class="readout-stack">
+          <article class="readout-line">
+            <span>Matches found</span>
+            <strong id="matchCount">0</strong>
+          </article>
+          <article class="readout-line">
+            <span>Strongest quake</span>
+            <strong id="topMagnitude">--</strong>
+            <small id="topMagnitudeTime" class="readout-line__subtext">Waiting</small>
+          </article>
+          <article class="readout-line">
+            <span>Average magnitude</span>
+            <strong id="averageMagnitude">--</strong>
+          </article>
+          <article class="readout-line">
+            <span>Latest event</span>
+            <strong id="latestEvent">Waiting</strong>
+          </article>
+
+          <article class="hazard-meter" id="hazardMeterCard" aria-label="Seismic threat meter">
+            <div class="hazard-meter__header">
+              <span>Seismic level</span>
+              <p id="hazardMeterValue">Standby</p>
+            </div>
+            <div class="hazard-meter__body">
+              <div class="hazard-meter__bars" id="hazardMeterBars" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="hazard-meter__radar" aria-hidden="true">
+                <span class="hazard-meter__sweep"></span>
+                <span class="hazard-meter__dot"></span>
+              </div>
+            </div>
+            <p id="hazardMeterLabel" class="hazard-meter__status">Awaiting signal from the live feed.</p>
+          </article>
+        </div>
+
+        <div class="insight-card">
+          <p class="insight-card__label">Station note</p>
+          <p id="insightMessage" class="insight-card__copy">
+            No data loaded yet. Run a search to light up the seismic readout.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel panel--results">
+        <div class="panel__heading panel__heading--results">
+          <div>
+            <p class="kicker">Event feed</p>
+            <h2>Detected earthquakes</h2>
+            <p class="panel__intro panel__intro--results">
+              The newest matches appear here with location, timing, depth, and a direct USGS link.
+            </p>
+          </div>
+          <p id="resultsMeta" class="results-meta">No search performed yet.</p>
+        </div>
+
+        <div class="results-toolbar" aria-label="Result filters">
+          <label class="results-filter">
+            <span>Region</span>
+            <select id="regionFilter" disabled>
+              <option value="all">All regions</option>
+            </select>
+          </label>
+
+          <label class="results-filter">
+            <span>Show</span>
+            <select id="resultLimit" disabled>
+              <option value="12">12 events</option>
+              <option value="25">25 events</option>
+              <option value="50">50 events</option>
+              <option value="all">All events</option>
+            </select>
+          </label>
+
+          <button id="resetButton" class="secondary-button results-reset" type="button" disabled>
+            Clear results
+          </button>
+        </div>
+
+        <div id="results" class="results-list" aria-live="polite">
+          <article class="empty-state">
+            <p class="empty-state__title">Your results will appear here.</p>
+            <p class="empty-state__copy">
+              Try a 7-day search with magnitude 4.5 or higher to start with a useful data set.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <img
+          class="site-footer__logo"
+          src="../lab2/img/csumb-logo.png"
+          alt="CSUMB logo"
+        />
+        <div class="site-footer__copy">
+          <p>Created for academic purposes for CST 336 at California State University, Monterey Bay.</p>
+          <p>Earthquake data is provided by the USGS Earthquake API.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
