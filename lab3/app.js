@@ -111,6 +111,25 @@ function updatePageStatus(message) {
   pageStatus.textContent = message;
 }
 
+function jumpToField(fieldId) {
+  const field = document.getElementById(fieldId);
+
+  if (!field) {
+    return;
+  }
+
+  field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  window.setTimeout(() => {
+    field.focus({ preventScroll: true });
+  }, 250);
+
+  const fieldLabel =
+    field.closest('.field')?.querySelector('span')?.textContent ?? field.name ?? 'Field';
+
+  updatePageStatus(`${fieldLabel} ready`);
+}
+
 function populateStates() {
   stateField.innerHTML = '<option value="">Select a state</option>';
 
