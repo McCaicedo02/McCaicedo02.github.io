@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Manrope:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -40,16 +40,6 @@
                 styled like an old control room display.
               </p>
             </div>
-
-            <aside class="hero-copy__console" aria-label="System status">
-              <p class="hero-copy__console-label">Station terminal</p>
-              <div class="hero-copy__console-screen">
-                <p><span>status</span><strong> seismic uplink stable</strong></p>
-                <p><span>source</span><strong> usgs geojson endpoint</strong></p>
-                <p><span>mode</span><strong> live query + archive scan</strong></p>
-                <p><span>alert</span><strong> monitor armed for cursor simulation</strong></p>
-              </div>
-            </aside>
           </div>
 
           <div class="ticker" aria-label="Feature highlights">
@@ -67,6 +57,16 @@
             <span aria-hidden="true">SIGNAL SIMULATION</span>
           </div>
         </div>
+
+        <aside class="hero-terminal" aria-label="System status">
+          <p class="hero-copy__console-label">Station terminal</p>
+          <div class="hero-copy__console-screen">
+            <p><span>status</span><strong> seismic uplink stable</strong></p>
+            <p><span>source</span><strong> usgs geojson endpoint</strong></p>
+            <p><span>mode</span><strong> live query + archive scan</strong></p>
+            <p><span>alert</span><strong> monitor armed for cursor simulation</strong></p>
+          </div>
+        </aside>
 
         <aside class="hero-monitor">
           <div class="hero-monitor__header">
@@ -109,12 +109,24 @@
             <p class="hero-monitor__label">Historic quake archive</p>
             <p class="hero-archive__hint">Separate from the live simulator</p>
           </div>
-          <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
-            Random major quake
-          </button>
-          <p class="hero-monitor__fact" id="randomQuakeFact">
-            Click for a historic major earthquake event.
-          </p>
+          <div class="hero-archive__body">
+            <div class="hero-archive__intro">
+              <p class="hero-archive__title">Historic spotlight</p>
+              <p class="hero-archive__copy">
+                Pull a famous earthquake from history for quick context while exploring the live feed.
+              </p>
+            </div>
+            <button class="hero-monitor__fact-button" id="randomQuakeButton" type="button">
+              Show random major quake
+            </button>
+            <div class="hero-archive__event">
+              <p class="hero-archive__event-title" id="randomQuakeTitle">Awaiting archive pull</p>
+              <p class="hero-archive__event-meta" id="randomQuakeMeta">Year · Region · Magnitude</p>
+              <p class="hero-monitor__fact" id="randomQuakeFact">
+                Click the button to load a historic major earthquake and make this section feel alive.
+              </p>
+            </div>
+          </div>
         </article>
       </section>
     </header>
@@ -124,6 +136,9 @@
         <div class="panel__heading">
           <p class="kicker">Query builder</p>
           <h2>Search earthquake activity</h2>
+          <p class="panel__intro">
+            Pick a date range, set a minimum magnitude, then load matching events from the USGS feed.
+          </p>
         </div>
 
         <form id="quakeForm" class="quake-form" novalidate>
@@ -173,6 +188,9 @@
         <div class="panel__heading">
           <p class="kicker">Live snapshot</p>
           <h2>Control room readout</h2>
+          <p class="panel__intro">
+            Read the headline stats first, then scan the event feed for individual earthquakes.
+          </p>
         </div>
 
         <div class="readout-stack">
@@ -207,6 +225,9 @@
           <div>
             <p class="kicker">Event feed</p>
             <h2>Detected earthquakes</h2>
+            <p class="panel__intro panel__intro--results">
+              The newest matches appear here with location, timing, depth, and a direct USGS link.
+            </p>
           </div>
           <p id="resultsMeta" class="results-meta">No search performed yet.</p>
         </div>

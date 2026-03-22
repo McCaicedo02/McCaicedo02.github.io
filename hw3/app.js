@@ -20,6 +20,8 @@ const monitorEpicenter = document.getElementById('monitorEpicenter');
 const waveformBars = Array.from(document.querySelectorAll('.waveform span'));
 const monitorPrompt = document.getElementById('monitorPrompt');
 const randomQuakeButton = document.getElementById('randomQuakeButton');
+const randomQuakeTitle = document.getElementById('randomQuakeTitle');
+const randomQuakeMeta = document.getElementById('randomQuakeMeta');
 const randomQuakeFact = document.getElementById('randomQuakeFact');
 
 const majorEarthquakeEvents = [
@@ -227,13 +229,15 @@ function renderResults(features) {
             <span>Magnitude</span>
             <strong>${mag?.toFixed(1) ?? 'N/A'}</strong>
           </div>
-          <div>
+          <div class="quake-card__body">
             <h3>${place}</h3>
             <p class="quake-card__details">
-              Recorded ${formatDateTime(time)}.<br />
-              Depth: ${formatDepth(depth)}.<br />
-              Coordinates: ${latitude.toFixed(2)}, ${longitude.toFixed(2)}.
+              Recorded ${formatDateTime(time)}.
             </p>
+            <div class="quake-card__chips">
+              <span>${formatDepth(depth)}</span>
+              <span>${latitude.toFixed(2)}, ${longitude.toFixed(2)}</span>
+            </div>
           </div>
           <div class="quake-card__meta">
             <span>USGS event</span>
@@ -313,13 +317,14 @@ function applyQuickRange(days) {
 }
 
 function showRandomMajorEarthquake() {
-  if (!randomQuakeFact) {
+  if (!randomQuakeFact || !randomQuakeTitle || !randomQuakeMeta) {
     return;
   }
 
   const event = majorEarthquakeEvents[Math.floor(Math.random() * majorEarthquakeEvents.length)];
-  randomQuakeFact.textContent =
-    `${event.year} · ${event.title} · M${event.magnitude}. ${event.detail}`;
+  randomQuakeTitle.textContent = event.title;
+  randomQuakeMeta.textContent = `${event.year} · Magnitude ${event.magnitude}`;
+  randomQuakeFact.textContent = event.detail;
 }
 
 function initializeMonitor() {
