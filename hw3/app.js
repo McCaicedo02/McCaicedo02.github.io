@@ -11,6 +11,7 @@ const regionFilter = document.getElementById('regionFilter');
 const resultLimit = document.getElementById('resultLimit');
 const matchCount = document.getElementById('matchCount');
 const topMagnitude = document.getElementById('topMagnitude');
+const topMagnitudeTime = document.getElementById('topMagnitudeTime');
 const averageMagnitude = document.getElementById('averageMagnitude');
 const latestEvent = document.getElementById('latestEvent');
 const insightMessage = document.getElementById('insightMessage');
@@ -122,6 +123,7 @@ const majorEarthquakeEvents = [
 
 let lastMajorEarthquakeIndex = -1;
 let currentFeatures = [];
+let fetchedMatchCount = 0;
 
 function getHazardLevel(magnitude) {
   if (!Number.isFinite(magnitude) || magnitude <= 0) {
@@ -324,23 +326,6 @@ function openDatePicker(input) {
   }
 }
 
-function blockManualDateEntry(event) {
-  const allowedKeys = new Set([
-    'Tab',
-    'Shift',
-    'Meta',
-    'Control',
-    'Alt',
-    'Escape'
-  ]);
-
-  if (allowedKeys.has(event.key)) {
-    return;
-  }
-
-  event.preventDefault();
-}
-
 function setLoadingState(isLoading) {
   searchButton.disabled = isLoading;
   searchButton.textContent = isLoading ? 'Loading...' : 'Run search';
@@ -395,8 +380,11 @@ function renderEmptyState(title, message) {
 
 function updateSummary(features) {
   if (features.length === 0) {
-    matchCount.textContent = '0';
+    matchCount.textContent = String(fetchedMatchCount);
     topMagnitude.textContent = '--';
+    if (topMagnitudeTime) {
+      topMagnitudeTime.textContent = 'Waiting';
+    }
     averageMagnitude.textContent = '--';
     latestEvent.textContent = 'No events';
     insightMessage.textContent = 'No earthquakes matched your filters. Try a wider date range or lower minimum magnitude.';
@@ -410,8 +398,11 @@ function updateSummary(features) {
   const latestTimestamp = Math.max(...features.map((feature) => feature.properties.time));
   const strongestEvent = features.find((feature) => feature.properties.mag === strongest);
 
-  matchCount.textContent = String(features.length);
+  matchCount.textContent = String(fetchedMatchCount);
   topMagnitude.textContent = strongest.toFixed(1);
+  if (topMagnitudeTime) {
+    topMagnitudeTime.textContent = formatDateTime(strongestEvent.properties.time);
+  }
   averageMagnitude.textContent = average.toFixed(1);
   latestEvent.textContent = formatDateTime(latestTimestamp);
   insightMessage.textContent = `${strongestEvent.properties.place} was the strongest event in this result set at magnitude ${strongest.toFixed(1)}.`;
@@ -464,6 +455,43 @@ function renderResults(features) {
 
   const limitValue = resultLimit?.value ?? '12';
   const visibleFeatures = limitValue === 'all' ? features : features.slice(0, Number(limitValue));
+  const strongestMagnitude = Math.max(...features.map((feature) => feature.properties.mag ?? 0));
+  const strongestFeature = features.find((feature) => feature.properties.mag === strongestMagnitude);
+
+  const strongestCard = strongestFeature
+    ? (() => {
+        const { mag, place, time, url } = strongestFeature.properties;
+        const [longitude, latitude, depth] = strongestFeature.geometry.coordinates;
+        const tier = getMagnitudeTier(mag);
+        const region = getRegionName(place);
+
+        return `
+          <article class="quake-card quake-card--${tier.tone} quake-card--featured">
+            <div class="quake-card__magnitude">
+              <span>Strongest</span>
+              <strong>${mag?.toFixed(1) ?? 'N/A'}</strong>
+            </div>
+            <div class="quake-card__body">
+              <h3>${place}</h3>
+              <p class="quake-card__details">
+                Strongest event in this search. Recorded ${formatDateTime(time)}.
+              </p>
+              <div class="quake-card__chips">
+                <span>Strongest in range</span>
+                <span>${tier.label}</span>
+                <span>${formatDepth(depth)}</span>
+                <span>${escapeHtml(region)}</span>
+                <span>${latitude.toFixed(2)}, ${longitude.toFixed(2)}</span>
+              </div>
+            </div>
+            <div class="quake-card__meta">
+              <span>USGS event</span>
+              <a class="quake-card__link" href="${url}" target="_blank" rel="noreferrer">Open details</a>
+            </div>
+          </article>
+        `;
+      })()
+    : '';
 
   const cards = visibleFeatures
     .map((feature) => {
@@ -499,7 +527,7 @@ function renderResults(features) {
     })
     .join('');
 
-  results.innerHTML = cards;
+  results.innerHTML = `${strongestCard}${cards}`;
 }
 
 function populateRegionFilter(features) {
@@ -533,16 +561,21 @@ function getFilteredFeatures() {
 }
 
 function updateResultsMeta(filteredFeatures) {
-  const totalMatches = currentFeatures.length;
+  const totalMatches = fetchedMatchCount;
+  const fetchedMatches = currentFeatures.length;
   const filteredMatches = filteredFeatures.length;
   const limitValue = resultLimit?.value ?? '12';
   const visibleMatches = limitValue === 'all' ? filteredMatches : Math.min(filteredMatches, Number(limitValue));
   const regionLabel =
     regionFilter && regionFilter.value !== 'all' ? ` in ${regionFilter.value}` : '';
+  const capNote =
+    fetchedMatches === 20000 && totalMatches === fetchedMatches
+      ? ' Results are capped at the newest 20,000 events for a single search.'
+      : '';
 
   resultsMeta.textContent =
     `Showing ${visibleMatches} of ${filteredMatches} filtered earthquakes` +
-    `${regionLabel}. ${totalMatches} total matches from ${startDateInput.value} to ${endDateInput.value}.`;
+    `${regionLabel}. ${fetchedMatches} events were loaded from ${totalMatches} total matches between ${startDateInput.value} and ${endDateInput.value}.${capNote}`;
 }
 
 function updateResultsView() {
@@ -571,6 +604,7 @@ function resetResultsControls() {
 
 function resetSearchExperience() {
   currentFeatures = [];
+  fetchedMatchCount = 0;
   updateSummary([]);
   resetResultsControls();
   renderEmptyState(
@@ -621,6 +655,7 @@ async function handleSearch(event) {
   try {
     const data = await fetchEarthquakes();
     currentFeatures = data.features ?? [];
+    fetchedMatchCount = typeof data.metadata?.count === 'number' ? data.metadata.count : currentFeatures.length;
 
     populateRegionFilter(currentFeatures);
 
@@ -637,6 +672,7 @@ async function handleSearch(event) {
     formStatus.textContent = 'Earthquake data loaded successfully.';
   } catch (error) {
     currentFeatures = [];
+    fetchedMatchCount = 0;
     formStatus.textContent = error.message;
     resultsMeta.textContent = 'The request failed.';
     renderEmptyState(
@@ -817,16 +853,8 @@ if (resetButton) {
 }
 
 quakeForm.addEventListener('submit', handleSearch);
-startDateInput.addEventListener('focus', () => openDatePicker(startDateInput));
-endDateInput.addEventListener('focus', () => openDatePicker(endDateInput));
 startDateInput.addEventListener('click', () => openDatePicker(startDateInput));
 endDateInput.addEventListener('click', () => openDatePicker(endDateInput));
-startDateInput.addEventListener('keydown', blockManualDateEntry);
-endDateInput.addEventListener('keydown', blockManualDateEntry);
-startDateInput.addEventListener('paste', (event) => event.preventDefault());
-endDateInput.addEventListener('paste', (event) => event.preventDefault());
-startDateInput.addEventListener('drop', (event) => event.preventDefault());
-endDateInput.addEventListener('drop', (event) => event.preventDefault());
 startDateInput.addEventListener('input', validateDateInputs);
 endDateInput.addEventListener('input', validateDateInputs);
 startDateInput.addEventListener('change', validateDateInputs);

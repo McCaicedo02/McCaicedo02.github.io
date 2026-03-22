@@ -1626,7 +1626,8 @@ body::after {
 }
 
 .readout-line span,
-.readout-line strong {
+.readout-line strong,
+.readout-line__subtext {
   margin: 0;
 }
 
@@ -1645,6 +1646,14 @@ body::after {
   text-wrap: balance;
   text-shadow: 0 0 18px rgba(122, 255, 196, 0.14);
   max-width: 10ch;
+}
+
+.readout-line__subtext {
+  color: rgba(216, 255, 240, 0.68);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .hazard-meter {
@@ -2025,6 +2034,60 @@ body::after {
     inset 0 0 0 1px color-mix(in srgb, var(--quake-accent) 12%, transparent),
     0 20px 36px rgba(0, 0, 0, 0.2),
     0 0 28px var(--quake-glow);
+}
+
+.quake-card--featured {
+  border-color: color-mix(in srgb, var(--quake-accent) 58%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--quake-accent) 18%, transparent), transparent 22%),
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--quake-accent) 28%, transparent), transparent 30%),
+    rgba(255, 255, 255, 0.03);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--quake-accent) 16%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--quake-accent) 22%, transparent),
+    0 18px 38px rgba(0, 0, 0, 0.22),
+    0 0 34px var(--quake-glow);
+}
+
+.quake-card--featured::before {
+  width: 10px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--quake-accent) 32%, transparent);
+}
+
+.quake-card--featured::after {
+  background:
+    linear-gradient(108deg, transparent 0 52%, rgba(255, 255, 255, 0.06) 70%, transparent 100%);
+  opacity: 0.8;
+}
+
+.quake-card--featured .quake-card__magnitude {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--quake-accent) 14%, transparent),
+    0 0 24px color-mix(in srgb, var(--quake-accent) 16%, transparent);
+}
+
+.quake-card--featured .quake-card__magnitude span:first-child {
+  color: color-mix(in srgb, var(--quake-accent) 62%, white);
+}
+
+.quake-card--featured .quake-card__details {
+  color: rgba(255, 245, 229, 0.9);
+}
+
+.quake-card--featured .quake-card__chips span:first-child {
+  border-color: color-mix(in srgb, var(--quake-accent) 56%, transparent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--quake-accent) 26%, transparent), transparent),
+    color-mix(in srgb, var(--quake-accent) 14%, transparent);
+  color: #fff4db;
+  font-weight: 700;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--quake-accent) 14%, transparent),
+    0 0 18px color-mix(in srgb, var(--quake-accent) 16%, transparent);
+}
+
+.quake-card--featured .quake-card__meta span {
+  color: color-mix(in srgb, var(--quake-accent) 52%, white);
 }
 
 .quake-card--low {
