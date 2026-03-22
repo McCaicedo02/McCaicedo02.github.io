@@ -78,15 +78,29 @@
 
           <aside class="hero-aside">
             <p class="hero-aside__label">System status</p>
-            <p class="status-pill" id="pageStatus">Ready to validate</p>
+            <button type="button" class="status-pill" id="pageStatus" onclick="handleStatusAction()">
+              Signup form ready
+            </button>
             <div class="status-stack">
               <p><span>Signal</span><strong>Monterey Bay Stable</strong></p>
               <p><span>Theme</span><strong>Otterwave Arcade</strong></p>
             </div>
-            <div class="coastline">
-              <span></span>
-              <span></span>
-              <span></span>
+            <div class="status-module">
+              <div class="status-track" aria-hidden="true">
+                <span class="status-track__bar"></span>
+                <span class="status-track__bar"></span>
+                <span class="status-track__bar"></span>
+              </div>
+              <p class="status-detail" id="statusDetail">Open the form and begin entering your profile details.</p>
+              <button
+                type="button"
+                class="status-cta ghost-button"
+                id="statusAction"
+                onclick="handleStatusAction()"
+              >
+                Jump to form
+              </button>
+              <p class="status-hint" id="statusHint">Still needed: first name, username, ZIP lookup.</p>
             </div>
             <p class="hero-aside__note">
               From Monterey Bay to your dashboard, this sign-up page is built to feel welcoming,
@@ -229,7 +243,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="primary-button">Submit</button>
+              <button type="submit" class="primary-button" id="submitButton">Submit</button>
               <button type="reset" class="ghost-button" onclick="resetFormState()">Reset</button>
             </div>
 

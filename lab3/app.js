@@ -68,7 +68,14 @@ let currentSuggestion = '';
 
 const form = document.getElementById('signupForm');
 const pageStatus = document.getElementById('pageStatus');
+const statusModule = document.querySelector('.status-module');
+const statusDetail = document.getElementById('statusDetail');
+const statusAction = document.getElementById('statusAction');
+const statusHint = document.getElementById('statusHint');
+const statusBars = Array.from(document.querySelectorAll('.status-track__bar'));
 const submitMessage = document.getElementById('submitMessage');
+const firstNameField = document.getElementById('firstName');
+const lastNameField = document.getElementById('lastName');
 const usernameField = document.getElementById('username');
 const usernameMessage = document.getElementById('usernameMessage');
 const zipField = document.getElementById('zip');
@@ -84,6 +91,7 @@ const passwordMessage = document.getElementById('passwordMessage');
 const confirmPasswordField = document.getElementById('confirmPassword');
 const confirmMessage = document.getElementById('confirmMessage');
 const passwordSuggestion = document.getElementById('passwordSuggestion');
+const submitButton = document.getElementById('submitButton');
 const welcomePanel = document.getElementById('welcomePanel');
 const welcomeTitle = document.getElementById('welcomeTitle');
 const welcomeSummary = document.getElementById('welcomeSummary');
@@ -109,6 +117,95 @@ function clearFieldState(field) {
 
 function updatePageStatus(message) {
   pageStatus.textContent = message;
+  pageStatus.classList.remove('status-pill--ready', 'status-pill--error');
+
+  if (message === 'Ready to submit' || message === 'Signup complete') {
+    pageStatus.classList.add('status-pill--ready');
+  }
+
+  if (message === 'Form needs attention') {
+    pageStatus.classList.add('status-pill--error');
+  }
+}
+
+function getCompletionPercent(completed, total) {
+  return `${Math.max(14, Math.round((completed / total) * 100))}%`;
+}
+
+function getFormProgress() {
+  const identityChecks = [
+    { label: 'first name', done: firstNameField.value.trim() !== '', fieldId: 'firstName' },
+    { label: 'last name', done: lastNameField.value.trim() !== '', fieldId: 'lastName' },
+    {
+      label: 'username check',
+      done: usernameField.value.trim() !== '' && usernameIsAvailable,
+      fieldId: 'username'
+    }
+  ];
+  const locationChecks = [
+    {
+      label: 'ZIP lookup',
+      done: zipField.value.length === 5 && cityField.value && longitudeField.value && latitudeField.value,
+      fieldId: 'zip'
+    },
+    { label: 'state', done: stateField.value !== '', fieldId: 'state' },
+    { label: 'county', done: countyField.value !== '', fieldId: 'county' }
+  ];
+  const securityChecks = [
+    {
+      label: 'password setup',
+      done:
+        passwordField.value.length >= 6 &&
+        confirmPasswordField.value !== '' &&
+        passwordField.value === confirmPasswordField.value,
+      fieldId: 'password'
+    }
+  ];
+
+  const allChecks = [...identityChecks, ...locationChecks, ...securityChecks];
+  const pending = allChecks.filter((check) => !check.done);
+
+  return {
+    isReady: pending.length === 0,
+    pending,
+    firstIncompleteId: pending[0]?.fieldId ?? 'submitButton',
+    identityPercent: getCompletionPercent(
+      identityChecks.filter((check) => check.done).length,
+      identityChecks.length
+    ),
+    locationPercent: getCompletionPercent(
+      locationChecks.filter((check) => check.done).length,
+      locationChecks.length
+    ),
+    securityPercent: getCompletionPercent(
+      securityChecks.filter((check) => check.done).length,
+      securityChecks.length
+    )
+  };
+}
+
+function syncStatusPanel() {
+  const progress = getFormProgress();
+  const hintItems = progress.pending.slice(0, 3).map((check) => check.label);
+
+  statusBars[0]?.style.setProperty('--status-fill', progress.identityPercent);
+  statusBars[1]?.style.setProperty('--status-fill', progress.locationPercent);
+  statusBars[2]?.style.setProperty('--status-fill', progress.securityPercent);
+
+  statusModule.classList.toggle('is-ready', progress.isReady);
+  statusAction.classList.toggle('status-cta--ready', progress.isReady);
+
+  if (progress.isReady) {
+    updatePageStatus('Ready to submit');
+    statusDetail.textContent = 'All profile checks are green. You can launch straight to the final submit button.';
+    statusHint.textContent = 'Ready to submit. Jump down and finish the signup.';
+    statusAction.textContent = 'Go to submit';
+    return;
+  }
+
+  statusDetail.textContent = `Profile scan in progress. ${progress.pending.length} checkpoint${progress.pending.length === 1 ? '' : 's'} left before launch.`;
+  statusHint.textContent = `Still needed: ${hintItems.join(', ')}.`;
+  statusAction.textContent = `Fix ${progress.pending[0].label}`;
 }
 
 function jumpToField(fieldId) {
@@ -130,6 +227,14 @@ function jumpToField(fieldId) {
   updatePageStatus(`${fieldLabel} ready`);
 }
 
+function jumpToSubmitButton() {
+  submitButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  window.setTimeout(() => {
+    submitButton.focus({ preventScroll: true });
+  }, 250);
+}
+
 function jumpToSection(sectionId) {
   const target = document.getElementById(sectionId);
 
@@ -144,6 +249,25 @@ function jumpToSection(sectionId) {
   }, 300);
 
   updatePageStatus('Signup form ready');
+}
+
+function handleStatusAction() {
+  const progress = getFormProgress();
+
+  if (form.classList.contains('hidden')) {
+    welcomePanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    updatePageStatus('Signup complete');
+    return;
+  }
+
+  if (progress.isReady) {
+    jumpToSubmitButton();
+    updatePageStatus('Ready to submit');
+    return;
+  }
+
+  jumpToField(progress.firstIncompleteId);
+  updatePageStatus(`Needs ${progress.pending[0].label}`);
 }
 
 function populateStates() {
@@ -170,6 +294,7 @@ async function handleZipInput() {
     clearFieldState(zipField);
     setMessage(zipMessage, 'Enter a full 5-digit ZIP code.', '');
     updatePageStatus('Waiting for ZIP lookup');
+    syncStatusPanel();
     return;
   }
 
@@ -216,6 +341,8 @@ async function handleZipInput() {
     setMessage(zipMessage, 'ZIP code not found. Please enter a valid U.S. ZIP.', 'error');
     updatePageStatus('ZIP lookup failed');
   }
+
+  syncStatusPanel();
 }
 
 async function handleStateChange() {
@@ -228,6 +355,7 @@ async function handleStateChange() {
     countyField.innerHTML = '<option value="">Select a state first</option>';
     clearFieldState(stateField);
     setMessage(stateMessage, 'Select a state to load counties.', '');
+    syncStatusPanel();
     return;
   }
 
@@ -267,12 +395,15 @@ async function handleStateChange() {
     setMessage(stateMessage, 'County list could not be loaded right now.', 'error');
     updatePageStatus('County load failed');
   }
+
+  syncStatusPanel();
 }
 
 function resetUsernameState() {
   usernameIsAvailable = false;
   clearFieldState(usernameField);
   setMessage(usernameMessage, 'Availability will appear here.', '');
+  syncStatusPanel();
 }
 
 async function checkUsernameAvailability() {
@@ -281,12 +412,14 @@ async function checkUsernameAvailability() {
   if (!username) {
     setMessage(usernameMessage, 'Enter a username first.', '');
     clearFieldState(usernameField);
+    syncStatusPanel();
     return;
   }
 
   if (username.length < 4) {
     setMessage(usernameMessage, 'Username must be at least 4 characters long.', 'error');
     markField(usernameField, false);
+    syncStatusPanel();
     return;
   }
 
@@ -309,12 +442,14 @@ async function checkUsernameAvailability() {
     setMessage(usernameMessage, 'That username is unavailable. Please choose another.', 'error');
     markField(usernameField, false);
     updatePageStatus('Username unavailable');
+    syncStatusPanel();
     return;
   }
 
   setMessage(usernameMessage, 'That username is available.', 'success');
   markField(usernameField, true);
   updatePageStatus('Username available');
+  syncStatusPanel();
 }
 
 function generatePasswordSuggestion() {
@@ -349,6 +484,7 @@ function showPasswordSuggestion() {
 
   setMessage(passwordMessage, 'Suggested password generated. You can use it or type your own.', 'success');
   updatePageStatus('Password suggestion ready');
+  syncStatusPanel();
 }
 
 function applySuggestedPassword() {
@@ -359,6 +495,7 @@ function applySuggestedPassword() {
   passwordField.value = currentSuggestion;
   confirmPasswordField.value = currentSuggestion;
   validatePasswords();
+  syncStatusPanel();
 }
 
 function validatePasswords() {
@@ -388,6 +525,7 @@ function validatePasswords() {
     markField(confirmPasswordField, true);
   }
 
+  syncStatusPanel();
   return valid;
 }
 
@@ -432,6 +570,8 @@ function handleSubmit(event) {
   if (!requiredFieldsAreValid || !passwordsValid || !usernameIsAvailable || !locationIsValid) {
     setSubmitMessage('Please fix the highlighted fields and try again.', 'error');
     updatePageStatus('Form needs attention');
+    pageStatus.classList.add('status-pill--error');
+    syncStatusPanel();
     return;
   }
 
@@ -448,6 +588,12 @@ function handleSubmit(event) {
 
   setSubmitMessage('Signup complete.', 'success');
   updatePageStatus('Signup complete');
+  statusModule.classList.add('is-ready');
+  statusDetail.textContent = 'Profile creation complete. Your account packet is active and ready to go.';
+  statusHint.textContent = 'Signup complete. Use the button above to jump back to this summary.';
+  statusAction.textContent = 'View welcome';
+  statusAction.classList.add('status-cta--ready');
+  pageStatus.classList.add('status-pill--ready');
 }
 
 function resetFormState() {
@@ -474,6 +620,9 @@ function resetFormState() {
   setMessage(confirmMessage, 'Retype the same password.', '');
   setSubmitMessage('Complete the form to create your profile.', '');
   updatePageStatus('Ready to validate');
+  pageStatus.classList.remove('status-pill--ready', 'status-pill--error');
+  statusAction.classList.remove('status-cta--ready');
+  syncStatusPanel();
 }
 
 function startAnotherSignup() {
@@ -484,3 +633,8 @@ function startAnotherSignup() {
 
 populateStates();
 resetFormState();
+
+for (const field of form.querySelectorAll('input, select')) {
+  field.addEventListener('input', syncStatusPanel);
+  field.addEventListener('change', syncStatusPanel);
+}
