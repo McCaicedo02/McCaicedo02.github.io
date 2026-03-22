@@ -658,23 +658,133 @@ button:hover {
 
 .primary-button,
 .ghost-button {
+  position: relative;
+  overflow: hidden;
   padding: 0.95rem 1.3rem;
+  border: 1px solid transparent;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.primary-button::before,
+.ghost-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  transform: translateX(-120%);
+  transition: transform 0.35s ease;
+  pointer-events: none;
+}
+
+.primary-button:hover::before,
+.primary-button:focus-visible::before,
+.ghost-button:hover::before,
+.ghost-button:focus-visible::before {
+  transform: translateX(120%);
 }
 
 .primary-button {
-  color: #031321;
-  background: linear-gradient(135deg, #8af2ff, #f0b95b);
-  box-shadow: 0 12px 28px rgba(8, 43, 76, 0.22);
-  text-transform: uppercase;
+  color: #04111d;
+  background:
+    linear-gradient(135deg, rgba(138, 242, 255, 0.95), rgba(240, 185, 91, 0.96)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent);
+  border-color: rgba(240, 185, 91, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(240, 185, 91, 0.16),
+    0 12px 28px rgba(8, 43, 76, 0.28),
+    0 0 24px rgba(138, 242, 255, 0.16);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .ghost-button {
   color: #c8f6ff;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(31, 179, 179, 0.22);
-  text-transform: uppercase;
+  background:
+    linear-gradient(180deg, rgba(10, 42, 72, 0.88), rgba(3, 19, 33, 0.82));
+  border-color: rgba(31, 179, 179, 0.34);
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 185, 91, 0.07),
+    0 10px 22px rgba(1, 9, 18, 0.24);
+}
+
+.form-actions .primary-button,
+.form-actions .ghost-button {
+  display: inline-flex;
+  align-items: center;
+  min-width: 150px;
+  justify-content: center;
+  padding: 1rem 1.5rem 0.9rem;
+  border-width: 2px;
+  clip-path: none;
+  font-weight: 400;
+  font-family: "VT323", monospace;
+  font-size: 1.7rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  box-shadow:
+    inset -3px -3px 0 rgba(0, 0, 0, 0.28),
+    inset 3px 3px 0 rgba(255, 255, 255, 0.08),
+    0 6px 0 rgba(2, 12, 24, 0.72);
+}
+
+.form-actions .primary-button::before,
+.form-actions .ghost-button::before {
+  display: none;
+}
+
+.form-actions .primary-button {
+  color: #0a1622;
+  background: linear-gradient(180deg, #ffe08b 0%, #f0b95b 55%, #cd8f2f 100%);
+  border-color: #ffd98a;
+  text-shadow: none;
+  box-shadow:
+    inset -3px -3px 0 rgba(130, 81, 10, 0.34),
+    inset 3px 3px 0 rgba(255, 247, 200, 0.48),
+    0 6px 0 #8f6020,
+    0 0 20px rgba(240, 185, 91, 0.16);
+}
+
+.form-actions .ghost-button {
+  color: #d8fbff;
+  background: linear-gradient(180deg, #195980 0%, #0f3552 55%, #0a2338 100%);
+  border-color: #63d7ec;
+}
+
+.form-actions .primary-button:hover,
+.form-actions .primary-button:focus-visible,
+.form-actions .ghost-button:hover,
+.form-actions .ghost-button:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.form-actions .primary-button:hover,
+.form-actions .primary-button:focus-visible {
+  box-shadow:
+    inset -3px -3px 0 rgba(130, 81, 10, 0.3),
+    inset 3px 3px 0 rgba(255, 247, 200, 0.52),
+    0 8px 0 #8f6020,
+    0 0 26px rgba(240, 185, 91, 0.22);
+}
+
+.form-actions .ghost-button:hover,
+.form-actions .ghost-button:focus-visible {
+  border-color: #8aeaf6;
+  box-shadow:
+    inset -3px -3px 0 rgba(3, 19, 33, 0.38),
+    inset 3px 3px 0 rgba(151, 231, 242, 0.18),
+    0 8px 0 #06192b,
+    0 0 22px rgba(31, 179, 179, 0.2);
+}
+
+.form-actions .primary-button:active,
+.form-actions .ghost-button:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset -2px -2px 0 rgba(0, 0, 0, 0.24),
+    inset 2px 2px 0 rgba(255, 255, 255, 0.08),
+    0 2px 0 rgba(2, 12, 24, 0.72);
 }
 
 .welcome-panel {
