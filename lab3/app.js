@@ -130,6 +130,22 @@ function jumpToField(fieldId) {
   updatePageStatus(`${fieldLabel} ready`);
 }
 
+function jumpToSection(sectionId) {
+  const target = document.getElementById(sectionId);
+
+  if (!target) {
+    return;
+  }
+
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  window.setTimeout(() => {
+    document.getElementById('firstName')?.focus({ preventScroll: true });
+  }, 300);
+
+  updatePageStatus('Signup form ready');
+}
+
 function populateStates() {
   stateField.innerHTML = '<option value="">Select a state</option>';
 

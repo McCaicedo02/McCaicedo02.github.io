@@ -280,11 +280,46 @@ h3 {
 }
 
 h1 {
-  max-width: 11ch;
+  max-width: 16ch;
   font-size: clamp(3.6rem, 7vw, 7rem);
+  line-height: 0.9;
   color: #f6fbff;
   text-shadow: 0 0 24px rgba(31, 179, 179, 0.2);
   animation: rise-in 0.7s ease both;
+}
+
+.headline-start {
+  position: relative;
+  display: inline-block;
+  margin: 0 0.18em;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 0 8px rgba(240, 185, 91, 0.65),
+    0 0 18px rgba(31, 179, 179, 0.35);
+  cursor: pointer;
+  vertical-align: baseline;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+  animation: start-blink 1.8s steps(2, end) infinite;
+}
+
+.headline-start:hover,
+.headline-start:focus-visible {
+  transform: translateY(-3px) scale(1.04);
+  color: #fff5d6;
+  text-shadow:
+    0 0 10px rgba(240, 185, 91, 0.85),
+    0 0 22px rgba(240, 185, 91, 0.45),
+    0 0 36px rgba(31, 179, 179, 0.3);
 }
 
 h2 {
@@ -371,6 +406,17 @@ h3 {
 .metric-card strong {
   font-size: 1rem;
   color: #f6fbff;
+}
+
+@keyframes start-blink {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  50% {
+    filter: brightness(1.18);
+  }
 }
 
 .hero-aside {
@@ -787,6 +833,10 @@ button:hover {
 }
 
 @media (max-width: 920px) {
+  h1 {
+    max-width: 12ch;
+  }
+
   .hero-band__inner,
   .section-heading {
     grid-template-columns: 1fr;
@@ -804,6 +854,10 @@ button:hover {
 }
 
 @media (max-width: 760px) {
+  h1 {
+    max-width: 10ch;
+  }
+
   .site-header__inner {
     min-height: auto;
     padding: 1rem 0;
