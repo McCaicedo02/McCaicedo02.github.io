@@ -59,12 +59,27 @@
         </div>
 
         <aside class="hero-terminal" aria-label="System status">
-          <p class="hero-copy__console-label">Station terminal</p>
+          <div class="hero-terminal__topbar" aria-hidden="true">
+            <div class="hero-terminal__lights">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <p class="hero-copy__console-label">Station terminal</p>
+            <p class="hero-terminal__stamp">node 04 // watch active</p>
+          </div>
           <div class="hero-copy__console-screen">
-            <p><span>status</span><strong> seismic uplink stable</strong></p>
-            <p><span>source</span><strong> usgs geojson endpoint</strong></p>
-            <p><span>mode</span><strong> live query + archive scan</strong></p>
-            <p><span>alert</span><strong> monitor armed for cursor simulation</strong></p>
+            <p><span>status</span><strong> seismic uplink stable</strong><em class="console-chip console-chip--good">online</em></p>
+            <p><span>source</span><strong> usgs geojson endpoint</strong><em class="console-chip console-chip--data">geojson</em></p>
+            <p><span>mode</span><strong> live query + archive scan</strong><em class="console-chip console-chip--warm">dual pass</em></p>
+            <p><span>alert</span><strong> monitor armed for cursor simulation</strong><em class="console-chip console-chip--warn">tracking</em></p>
+            <p><span>latency</span><strong> response window under 1.2 seconds</strong><em class="console-chip console-chip--good">nominal</em></p>
+            <p><span>archive</span><strong> historic spotlight ready for random pull</strong><em class="console-chip console-chip--data">standby</em></p>
+          </div>
+          <div class="hero-terminal__footer" aria-hidden="true">
+            <span class="hero-terminal__prompt">root@station</span>
+            <span class="hero-terminal__command">scan --feed usgs --mode live --cursor armed</span>
+            <span class="hero-terminal__cursor"></span>
           </div>
         </aside>
 

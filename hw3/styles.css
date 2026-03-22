@@ -287,17 +287,86 @@ body::after {
 .hero-terminal {
   grid-area: terminal;
   display: grid;
-  gap: 0.7rem;
+  gap: 0.85rem;
   align-content: start;
   min-height: 0;
-  padding: 0.95rem;
-  border: 1px solid rgba(122, 255, 196, 0.28);
+  padding: 1rem;
+  border: 1px solid rgba(122, 255, 196, 0.24);
   background:
-    linear-gradient(180deg, rgba(7, 27, 20, 0.92), rgba(4, 14, 11, 0.98));
+    linear-gradient(180deg, rgba(7, 30, 23, 0.92), rgba(3, 12, 10, 0.98));
   box-shadow:
     inset 0 0 0 1px rgba(122, 255, 196, 0.08),
-    0 0 24px rgba(122, 255, 196, 0.08);
+    0 0 24px rgba(122, 255, 196, 0.08),
+    0 18px 36px rgba(0, 0, 0, 0.28);
   isolation: isolate;
+  overflow: hidden;
+}
+
+.hero-terminal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(122, 255, 196, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(122, 255, 196, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.18;
+}
+
+.hero-terminal::after {
+  content: "";
+  position: absolute;
+  inset: auto -12% -40% auto;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(122, 255, 196, 0.12), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.hero-terminal__topbar,
+.hero-terminal__footer,
+.hero-copy__console-screen {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-terminal__topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgba(122, 255, 196, 0.16);
+}
+
+.hero-terminal__lights {
+  display: inline-flex;
+  gap: 0.38rem;
+}
+
+.hero-terminal__lights span {
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.hero-terminal__lights span:nth-child(1) {
+  color: #ff8466;
+  background: currentColor;
+}
+
+.hero-terminal__lights span:nth-child(2) {
+  color: #ffcf70;
+  background: currentColor;
+}
+
+.hero-terminal__lights span:nth-child(3) {
+  color: #7affc4;
+  background: currentColor;
 }
 
 .hero-copy__console-label {
@@ -309,22 +378,36 @@ body::after {
   text-shadow: 0 0 12px rgba(122, 255, 196, 0.22);
 }
 
+.hero-terminal__stamp {
+  margin: 0;
+  color: rgba(223, 255, 242, 0.56);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: right;
+}
+
 .hero-copy__console-screen {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.55rem;
   font-family: "Manrope", "Segoe UI", sans-serif;
 }
 
 .hero-copy__console-screen p {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-columns: 88px minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.8rem;
   min-height: 2.95rem;
-  padding: 0.55rem 0.65rem;
+  margin: 0;
+  padding: 0.6rem 0.72rem;
   border-left: 2px solid rgba(122, 255, 196, 0.45);
-  background: rgba(122, 255, 196, 0.06);
-  box-shadow: inset 0 0 0 1px rgba(122, 255, 196, 0.05);
+  background:
+    linear-gradient(90deg, rgba(122, 255, 196, 0.09), rgba(122, 255, 196, 0.03)),
+    rgba(122, 255, 196, 0.03);
+  box-shadow:
+    inset 0 0 0 1px rgba(122, 255, 196, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .hero-copy__console-screen span {
@@ -340,9 +423,70 @@ body::after {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   text-align: left;
   text-shadow: 0 0 12px rgba(122, 255, 196, 0.16);
+}
+
+.console-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.9rem;
+  padding: 0.32rem 0.52rem;
+  border: 1px solid currentColor;
+  font-style: normal;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.console-chip--good {
+  color: #8cffd4;
+}
+
+.console-chip--data {
+  color: #83d7ff;
+}
+
+.console-chip--warm {
+  color: #ffd27d;
+}
+
+.console-chip--warn {
+  color: #ff9a72;
+}
+
+.hero-terminal__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding-top: 0.2rem;
+  color: rgba(223, 255, 242, 0.68);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+}
+
+.hero-terminal__prompt {
+  color: var(--amber);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-terminal__command {
+  color: rgba(223, 255, 242, 0.8);
+  white-space: nowrap;
+}
+
+.hero-terminal__cursor {
+  width: 0.52rem;
+  height: 1rem;
+  flex: none;
+  background: var(--grid-green);
+  box-shadow: 0 0 12px rgba(122, 255, 196, 0.5);
+  animation: terminal-cursor 1s steps(1) infinite;
 }
 
 .ticker {
@@ -1236,6 +1380,17 @@ body::after {
   }
 }
 
+@keyframes terminal-cursor {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .hero-band,
   .layout {
@@ -1287,6 +1442,20 @@ body::after {
   .hero-archive,
   .panel {
     border-radius: 0;
+  }
+
+  .hero-terminal__topbar,
+  .hero-terminal__footer {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .hero-terminal__footer {
+    display: grid;
+  }
+
+  .hero-terminal__command {
+    white-space: normal;
   }
 
   .hero-copy__console-screen p {
