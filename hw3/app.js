@@ -175,7 +175,37 @@ function updateHazardMeter(magnitude) {
 }
 
 function formatDateForInput(date) {
-  return date.toISOString().split('T')[0];
+  const localDate = new Date(date);
+  localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+  return localDate.toISOString().split('T')[0];
+}
+
+function parseInputDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function formatDateForApi(value, useEndOfDay = false) {
+  if (!parseInputDate(value)) {
+    return '';
+  }
+
+  if (!useEndOfDay) {
+    return value;
+  }
+
+  if (value === getTodayString()) {
+    const now = new Date();
+    const localNow = new Date(now);
+    localNow.setMinutes(localNow.getMinutes() - localNow.getTimezoneOffset());
+    return localNow.toISOString().slice(0, 19);
+  }
+
+  return `${value} 23:59:59`;
 }
 
 function getTodayString() {
@@ -201,10 +231,16 @@ function setFieldMessage(input, messageElement, message, type = '') {
 
 function validateDateInputs() {
   let isValid = true;
-  const todayString = getTodayString();
+  const today = parseInputDate(getTodayString());
+  const startDate = parseInputDate(startDateInput.value);
+  const endDate = parseInputDate(endDateInput.value);
+  const maxRangeInDays = 365 * 4;
 
   if (!startDateInput.value) {
     setFieldMessage(startDateInput, startDateMessage, 'Start date is required.', 'error');
+    isValid = false;
+  } else if (!startDateInput.validity.valid || !startDate) {
+    setFieldMessage(startDateInput, startDateMessage, 'Enter a valid start date.', 'error');
     isValid = false;
   } else {
     setFieldMessage(startDateInput, startDateMessage, 'Start date looks good.', 'success');
@@ -213,24 +249,47 @@ function validateDateInputs() {
   if (!endDateInput.value) {
     setFieldMessage(endDateInput, endDateMessage, 'End date is required.', 'error');
     isValid = false;
+  } else if (!endDateInput.validity.valid || !endDate) {
+    setFieldMessage(endDateInput, endDateMessage, 'Enter a valid end date.', 'error');
+    isValid = false;
   } else {
     setFieldMessage(endDateInput, endDateMessage, 'End date looks good.', 'success');
   }
 
-  if (endDateInput.value && endDateInput.value > todayString) {
+  if (endDate && today && endDate > today) {
     setFieldMessage(endDateInput, endDateMessage, 'End date cannot be after today.', 'error');
     isValid = false;
   }
 
-  if (startDateInput.value && startDateInput.value > todayString) {
+  if (startDate && today && startDate > today) {
     setFieldMessage(startDateInput, startDateMessage, 'Start date cannot be after today.', 'error');
     isValid = false;
   }
 
-  if (startDateInput.value && endDateInput.value && startDateInput.value > endDateInput.value) {
+  if (startDate && endDate && startDate > endDate) {
     setFieldMessage(startDateInput, startDateMessage, 'Start date must be before end date.', 'error');
     setFieldMessage(endDateInput, endDateMessage, 'End date must be after start date.', 'error');
     isValid = false;
+  }
+
+  if (startDate && endDate) {
+    const rangeInDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+    if (rangeInDays > maxRangeInDays) {
+      setFieldMessage(
+        startDateInput,
+        startDateMessage,
+        'Start date must be within 4 years of the end date so the USGS search stays within its result limit.',
+        'error'
+      );
+      setFieldMessage(
+        endDateInput,
+        endDateMessage,
+        'Date range cannot be longer than 4 years because broader searches can exceed the USGS API result limit.',
+        'error'
+      );
+      isValid = false;
+    }
   }
 
   return isValid;
@@ -257,6 +316,29 @@ function validateForm() {
   const datesAreValid = validateDateInputs();
   const magnitudeIsValid = validateMagnitudeInput();
   return datesAreValid && magnitudeIsValid;
+}
+
+function openDatePicker(input) {
+  if (typeof input.showPicker === 'function') {
+    input.showPicker();
+  }
+}
+
+function blockManualDateEntry(event) {
+  const allowedKeys = new Set([
+    'Tab',
+    'Shift',
+    'Meta',
+    'Control',
+    'Alt',
+    'Escape'
+  ]);
+
+  if (allowedKeys.has(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
 }
 
 function setLoadingState(isLoading) {
@@ -502,16 +584,22 @@ function resetSearchExperience() {
 async function fetchEarthquakes() {
   const params = new URLSearchParams({
     format: 'geojson',
-    starttime: startDateInput.value,
-    endtime: endDateInput.value,
+    starttime: formatDateForApi(startDateInput.value),
+    endtime: formatDateForApi(endDateInput.value, true),
     minmagnitude: minMagnitudeInput.value,
-    orderby: 'time'
+    orderby: 'time',
+    eventtype: 'earthquake',
+    limit: '20000'
   });
 
   const response = await fetch(`https://earthquake.usgs.gov/fdsnws/event/1/query?${params.toString()}`);
 
   if (!response.ok) {
-    throw new Error('Unable to retrieve earthquake data right now.');
+    if (response.status === 400) {
+      throw new Error('Search range is too broad for the USGS feed. Use a shorter date range or a higher minimum magnitude.');
+    }
+
+    throw new Error(`Unable to retrieve earthquake data right now (${response.status}).`);
   }
 
   return response.json();
@@ -729,6 +817,18 @@ if (resetButton) {
 }
 
 quakeForm.addEventListener('submit', handleSearch);
+startDateInput.addEventListener('focus', () => openDatePicker(startDateInput));
+endDateInput.addEventListener('focus', () => openDatePicker(endDateInput));
+startDateInput.addEventListener('click', () => openDatePicker(startDateInput));
+endDateInput.addEventListener('click', () => openDatePicker(endDateInput));
+startDateInput.addEventListener('keydown', blockManualDateEntry);
+endDateInput.addEventListener('keydown', blockManualDateEntry);
+startDateInput.addEventListener('paste', (event) => event.preventDefault());
+endDateInput.addEventListener('paste', (event) => event.preventDefault());
+startDateInput.addEventListener('drop', (event) => event.preventDefault());
+endDateInput.addEventListener('drop', (event) => event.preventDefault());
+startDateInput.addEventListener('input', validateDateInputs);
+endDateInput.addEventListener('input', validateDateInputs);
 startDateInput.addEventListener('change', validateDateInputs);
 endDateInput.addEventListener('change', validateDateInputs);
 minMagnitudeInput.addEventListener('input', validateMagnitudeInput);
