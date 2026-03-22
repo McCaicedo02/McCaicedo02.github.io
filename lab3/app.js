@@ -1,56 +1,3 @@
-const states = [
-  { name: 'Alabama', abbreviation: 'AL', fips: '01' },
-  { name: 'Alaska', abbreviation: 'AK', fips: '02' },
-  { name: 'Arizona', abbreviation: 'AZ', fips: '04' },
-  { name: 'Arkansas', abbreviation: 'AR', fips: '05' },
-  { name: 'California', abbreviation: 'CA', fips: '06' },
-  { name: 'Colorado', abbreviation: 'CO', fips: '08' },
-  { name: 'Connecticut', abbreviation: 'CT', fips: '09' },
-  { name: 'Delaware', abbreviation: 'DE', fips: '10' },
-  { name: 'Florida', abbreviation: 'FL', fips: '12' },
-  { name: 'Georgia', abbreviation: 'GA', fips: '13' },
-  { name: 'Hawaii', abbreviation: 'HI', fips: '15' },
-  { name: 'Idaho', abbreviation: 'ID', fips: '16' },
-  { name: 'Illinois', abbreviation: 'IL', fips: '17' },
-  { name: 'Indiana', abbreviation: 'IN', fips: '18' },
-  { name: 'Iowa', abbreviation: 'IA', fips: '19' },
-  { name: 'Kansas', abbreviation: 'KS', fips: '20' },
-  { name: 'Kentucky', abbreviation: 'KY', fips: '21' },
-  { name: 'Louisiana', abbreviation: 'LA', fips: '22' },
-  { name: 'Maine', abbreviation: 'ME', fips: '23' },
-  { name: 'Maryland', abbreviation: 'MD', fips: '24' },
-  { name: 'Massachusetts', abbreviation: 'MA', fips: '25' },
-  { name: 'Michigan', abbreviation: 'MI', fips: '26' },
-  { name: 'Minnesota', abbreviation: 'MN', fips: '27' },
-  { name: 'Mississippi', abbreviation: 'MS', fips: '28' },
-  { name: 'Missouri', abbreviation: 'MO', fips: '29' },
-  { name: 'Montana', abbreviation: 'MT', fips: '30' },
-  { name: 'Nebraska', abbreviation: 'NE', fips: '31' },
-  { name: 'Nevada', abbreviation: 'NV', fips: '32' },
-  { name: 'New Hampshire', abbreviation: 'NH', fips: '33' },
-  { name: 'New Jersey', abbreviation: 'NJ', fips: '34' },
-  { name: 'New Mexico', abbreviation: 'NM', fips: '35' },
-  { name: 'New York', abbreviation: 'NY', fips: '36' },
-  { name: 'North Carolina', abbreviation: 'NC', fips: '37' },
-  { name: 'North Dakota', abbreviation: 'ND', fips: '38' },
-  { name: 'Ohio', abbreviation: 'OH', fips: '39' },
-  { name: 'Oklahoma', abbreviation: 'OK', fips: '40' },
-  { name: 'Oregon', abbreviation: 'OR', fips: '41' },
-  { name: 'Pennsylvania', abbreviation: 'PA', fips: '42' },
-  { name: 'Rhode Island', abbreviation: 'RI', fips: '44' },
-  { name: 'South Carolina', abbreviation: 'SC', fips: '45' },
-  { name: 'South Dakota', abbreviation: 'SD', fips: '46' },
-  { name: 'Tennessee', abbreviation: 'TN', fips: '47' },
-  { name: 'Texas', abbreviation: 'TX', fips: '48' },
-  { name: 'Utah', abbreviation: 'UT', fips: '49' },
-  { name: 'Vermont', abbreviation: 'VT', fips: '50' },
-  { name: 'Virginia', abbreviation: 'VA', fips: '51' },
-  { name: 'Washington', abbreviation: 'WA', fips: '53' },
-  { name: 'West Virginia', abbreviation: 'WV', fips: '54' },
-  { name: 'Wisconsin', abbreviation: 'WI', fips: '55' },
-  { name: 'Wyoming', abbreviation: 'WY', fips: '56' }
-];
-
 const unavailableUsernames = new Set([
   'admin',
   'root',
@@ -65,6 +12,9 @@ const unavailableUsernames = new Set([
 let lastZipLookup = '';
 let usernameIsAvailable = false;
 let currentSuggestion = '';
+let usernameCheckTimer = 0;
+let lastUsernameChecked = '';
+let expectedCountyFromZip = '';
 
 const form = document.getElementById('signupForm');
 const pageStatus = document.getElementById('pageStatus');
@@ -175,7 +125,13 @@ function getFormProgress() {
       fieldId: 'zip'
     },
     { label: 'state', done: stateField.value !== '', fieldId: 'state' },
-    { label: 'county', done: countyField.value !== '', fieldId: 'county' }
+    {
+      label: expectedCountyFromZip ? 'county match' : 'county',
+      done:
+        countyField.value !== '' &&
+        (!expectedCountyFromZip || countyField.value === expectedCountyFromZip),
+      fieldId: 'county'
+    }
   ];
   const securityChecks = [
     {
@@ -235,7 +191,10 @@ function syncStatusPanel() {
 }
 
 function normalizeCountyName(countyName) {
-  return countyName.replace(/\s+(County|Parish|Borough|Census Area|Municipality)$/u, '').trim();
+  return countyName
+    .split(',')[0]
+    .replace(/\s+(County|Parish|Borough|Census Area|Municipality)$/u, '')
+    .trim();
 }
 
 async function autoSelectCountyFromCoordinates() {
@@ -258,6 +217,8 @@ async function autoSelectCountyFromCoordinates() {
     const matchingOption = Array.from(countyField.options).find(
       (option) => option.value === normalizedCounty
     );
+
+    expectedCountyFromZip = normalizedCounty;
 
     if (!matchingOption) {
       return;
@@ -335,16 +296,44 @@ function handleStatusAction() {
   updatePageStatus(`Needs ${progress.pending[0].label}`);
 }
 
-function populateStates() {
-  stateField.innerHTML = '<option value="">Select a state</option>';
+async function populateStates() {
+  stateField.innerHTML = '<option value="">Loading states...</option>';
+  setMessage(stateMessage, 'Select a state to load counties.', '');
 
-  for (const state of states) {
-    const option = document.createElement('option');
-    option.value = state.abbreviation;
-    option.textContent = state.name;
-    option.dataset.fips = state.fips;
-    stateField.appendChild(option);
+  try {
+    const response = await fetch('https://api.census.gov/data/2020/dec/pl?get=NAME&for=state:*');
+
+    if (!response.ok) {
+      throw new Error('Unable to load states');
+    }
+
+    const data = await response.json();
+    const states = data
+      .slice(1)
+      .map((row) => ({
+        name: row[0],
+        fips: row[1]
+      }))
+      .sort((first, second) => first.name.localeCompare(second.name));
+
+    stateField.innerHTML = '<option value="">Select a state</option>';
+
+    for (const state of states) {
+      const option = document.createElement('option');
+      option.value = state.name;
+      option.textContent = state.name;
+      option.dataset.fips = state.fips;
+      stateField.appendChild(option);
+    }
+
+    setMessage(stateMessage, 'Select a state to load counties.', '');
+  } catch (error) {
+    stateField.innerHTML = '<option value="">Unable to load states</option>';
+    setMessage(stateMessage, 'State list could not be loaded right now.', 'error');
+    updatePageStatus('State load failed');
   }
+
+  syncStatusPanel();
 }
 
 async function handleZipInput() {
@@ -368,6 +357,7 @@ async function handleZipInput() {
   }
 
   lastZipLookup = zip;
+  expectedCountyFromZip = '';
   setMessage(zipMessage, 'Checking ZIP code...', 'warning');
   updatePageStatus('Looking up ZIP');
 
@@ -389,10 +379,10 @@ async function handleZipInput() {
     markField(zipField, true);
 
     if (data['post code']) {
-      const stateAbbreviation = place?.['state abbreviation'] ?? '';
+      const stateName = place?.state ?? '';
 
-      if (stateAbbreviation) {
-        stateField.value = stateAbbreviation;
+      if (stateName) {
+        stateField.value = stateName;
         await handleStateChange();
         await autoSelectCountyFromCoordinates();
       }
@@ -400,6 +390,7 @@ async function handleZipInput() {
 
     updatePageStatus('ZIP verified');
   } catch (error) {
+    expectedCountyFromZip = '';
     cityField.value = '';
     longitudeField.value = '';
     latitudeField.value = '';
@@ -441,7 +432,7 @@ async function handleStateChange() {
     const data = await response.json();
     const counties = data
       .slice(1)
-      .map((row) => row[0].replace(/\s+(County|Parish|Borough|Census Area|Municipality)$/u, ''))
+      .map((row) => normalizeCountyName(row[0]))
       .sort((first, second) => first.localeCompare(second));
 
     countyField.innerHTML = '<option value="">Select a county</option>';
@@ -455,6 +446,10 @@ async function handleStateChange() {
 
     setMessage(stateMessage, `${counties.length} counties loaded successfully.`, 'success');
     updatePageStatus('County list ready');
+
+    if (countyField.value && expectedCountyFromZip && countyField.value !== expectedCountyFromZip) {
+      setMessage(stateMessage, `County does not match the ZIP code. Choose ${expectedCountyFromZip}.`, 'error');
+    }
   } catch (error) {
     countyField.innerHTML = '<option value="">Unable to load counties</option>';
     markField(stateField, false);
@@ -465,11 +460,55 @@ async function handleStateChange() {
   syncStatusPanel();
 }
 
+function validateCountySelection() {
+  if (!countyField.value) {
+    clearFieldState(countyField);
+    syncStatusPanel();
+    return false;
+  }
+
+  if (expectedCountyFromZip && countyField.value !== expectedCountyFromZip) {
+    markField(countyField, false);
+    setMessage(stateMessage, `County does not match the ZIP code. Choose ${expectedCountyFromZip}.`, 'error');
+    syncStatusPanel();
+    return false;
+  }
+
+  markField(countyField, true);
+  setMessage(stateMessage, 'County selected.', 'success');
+  syncStatusPanel();
+  return true;
+}
+
 function resetUsernameState() {
+  window.clearTimeout(usernameCheckTimer);
   usernameIsAvailable = false;
+  lastUsernameChecked = '';
   clearFieldState(usernameField);
   setMessage(usernameMessage, 'Availability will appear here.', '');
   syncStatusPanel();
+}
+
+function handleUsernameInput() {
+  resetUsernameState();
+
+  const username = usernameField.value.trim().toLowerCase();
+
+  if (!username) {
+    return;
+  }
+
+  if (username.length < 4) {
+    setMessage(usernameMessage, 'Username must be at least 4 characters long.', 'error');
+    markField(usernameField, false);
+    syncStatusPanel();
+    return;
+  }
+
+  setMessage(usernameMessage, 'Checking username availability...', 'warning');
+  usernameCheckTimer = window.setTimeout(() => {
+    checkUsernameAvailability();
+  }, 300);
 }
 
 async function checkUsernameAvailability() {
@@ -489,6 +528,13 @@ async function checkUsernameAvailability() {
     return;
   }
 
+  if (username === lastUsernameChecked && usernameIsAvailable) {
+    setMessage(usernameMessage, 'That username is available.', 'success');
+    markField(usernameField, true);
+    syncStatusPanel();
+    return;
+  }
+
   setMessage(usernameMessage, 'Checking username availability...', 'warning');
   updatePageStatus('Checking username');
 
@@ -503,6 +549,7 @@ async function checkUsernameAvailability() {
     username.startsWith('user');
 
   usernameIsAvailable = !taken;
+  lastUsernameChecked = username;
 
   if (taken) {
     setMessage(usernameMessage, 'That username is unavailable. Please choose another.', 'error');
@@ -627,13 +674,20 @@ function handleSubmit(event) {
   }
 
   const locationIsValid = cityField.value && longitudeField.value && latitudeField.value;
+  const countyMatchesZip = validateCountySelection();
 
   if (!locationIsValid) {
     setMessage(zipMessage, 'A valid ZIP code is required to populate city and coordinates.', 'error');
     markField(zipField, false);
   }
 
-  if (!requiredFieldsAreValid || !passwordsValid || !usernameIsAvailable || !locationIsValid) {
+  if (
+    !requiredFieldsAreValid ||
+    !passwordsValid ||
+    !usernameIsAvailable ||
+    !locationIsValid ||
+    !countyMatchesZip
+  ) {
     setSubmitMessage('Please fix the highlighted fields and try again.', 'error');
     updatePageStatus('Form needs attention');
     pageStatus.classList.add('status-pill--error');
@@ -666,6 +720,7 @@ function resetFormState() {
   lastZipLookup = '';
   usernameIsAvailable = false;
   currentSuggestion = '';
+  expectedCountyFromZip = '';
   form.classList.remove('hidden');
   welcomePanel.classList.add('hidden');
 
@@ -704,3 +759,5 @@ for (const field of form.querySelectorAll('input, select')) {
   field.addEventListener('input', syncStatusPanel);
   field.addEventListener('change', syncStatusPanel);
 }
+
+countyField.addEventListener('change', validateCountySelection);
