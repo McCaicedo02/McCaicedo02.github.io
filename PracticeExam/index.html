@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Famous Quotes</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="box">
+    <h1>Famous Quotes</h1>
+
+    <div id="quote"></div>
+    <div id="author"></div>
+
+    <button id="infoBtn">Display Author Info</button>
+    <div id="info"></div>
+
+    <h2>Translate Quote</h2>
+    <div id="langs"></div>
+    <button id="transBtn">Translate</button>
+    <div id="trans"></div>
+
+    <h2>Get Quotes</h2>
+    <input id="num" type="number" min="1" max="5">
+    <button id="quotesBtn">Get Quotes</button>
+    <div id="quotes"></div>
+  </div>
+
+  <div id="rubric">
+    <h2>Rubric</h2>
+    <table>
+      <tr>
+        <td>1</td>
+        <td>A random quote and corresponding author is displayed when loading the page</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>The author's bio and picture is displayed when clicking on the "Display Author Info" button</td>
+        <td style="color:green">15</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>The author's bio and picture are displayed in a two-column layout using a flex box</td>
+        <td style="color:green">10</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>The language choices (radio buttons) are displayed in a random order every time the page is reloaded</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>The corresponding language flag is displayed when clicking on the "Translate" button</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>The random quote displayed is translated into the language selected when clicking on the "Translate" button</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>An error message in red is displayed if the value entered in the "Number of Quotes" text box is not between 1 and 5 or if it's left blank</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>The specified number of quotes and corresponding authors (1 to 5) are displayed when clicking on the "Get Quotes" button</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>A random background image is displayed every time the page is reloaded using the Web API provided</td>
+        <td style="color:green">20</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>This rubric is properly included AND UPDATED</td>
+        <td style="color:green">3</td>
+      </tr>
+    </table>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
