@@ -2,7 +2,7 @@ let q;
 
 let flags = {
   EN: "en.png",
-  ES: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Flag_of_Esperanto.svg/320px-Flag_of_Esperanto.svg.png",
+  ES: "eo.svg",
   FR: "fr.png",
   SP: "es.png"
 };
@@ -48,13 +48,27 @@ function showLanguages() {
 }
 
 function showInfo() {
+  if (!q) {
+    document.getElementById("info").innerHTML = '<span class="e">Quote not loaded yet</span>';
+    return;
+  }
+
+  let pic = q.picture ? q.picture.replace("http://", "https://") : "";
   document.getElementById("info").innerHTML =
-    `<div><img src="${q.picture}" width="200"></div>
-     <div><h3>${q.firstName} ${q.lastName}</h3><p>${q.bio}</p></div>`;
+    `<div>
+      <img src="${pic}" width="200" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <p style="display:none">Image not available</p>
+    </div>
+    <div><h3>${q.firstName} ${q.lastName}</h3><p>${q.bio}</p></div>`;
 }
 
 function translateQuote() {
   let lang = document.querySelector('input[name="lang"]:checked');
+
+  if (!q) {
+    document.getElementById("trans").innerHTML = '<span class="e">Quote not loaded yet</span>';
+    return;
+  }
 
   if (!lang) {
     document.getElementById("trans").innerHTML = '<span class="e">Pick a language</span>';
@@ -66,6 +80,9 @@ function translateQuote() {
     .then(data => {
       document.getElementById("trans").innerHTML =
         `<img src="${flags[lang.value]}" width="35"> ${data.translation}`;
+    })
+    .catch(() => {
+      document.getElementById("trans").innerHTML = '<span class="e">Translation error</span>';
     });
 }
 
@@ -96,5 +113,8 @@ function getBackground() {
     .then(data => {
       let i = Math.floor(Math.random() * data.hits.length);
       document.body.style.backgroundImage = `url(${data.hits[i].largeImageURL})`;
+    })
+    .catch(() => {
+      document.body.style.backgroundColor = "#f5f5f5";
     });
 }
